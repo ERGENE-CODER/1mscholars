@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 export default function Home() {
-const [opportunitiesOpen, setOpportunitiesOpen] = useState(false);
+  const [opportunitiesOpen, setOpportunitiesOpen] = useState(false);
 
   return (
-    <main className="min-h-screen w-full overflow-x-hidden bg-white"> 
+    <main className="min-h-screen w-full overflow-x-hidden bg-white">
       {/* =====================================================
           HERO SECTION
       ===================================================== */}

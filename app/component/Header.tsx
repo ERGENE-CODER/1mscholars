@@ -5,10 +5,10 @@ import Link from "next/link";
 export default function Header() {
 
   return (
-<header className="w-full border-b border-gray-200 bg-white">
+    <header className="w-full border-b border-gray-200 bg-white">
 
-        <div
-          className="
+      <div
+        className="
             mx-auto
             flex
             h-[94px]
@@ -20,19 +20,19 @@ export default function Header() {
             lg:px-10
             xl:px-12
           "
-        >
+      >
 
-          {/* =================================================
+        {/* =================================================
               LOGO + BRAND
           ================================================= */}
-          <Link
-            href="/"
-            className="flex shrink-0 items-center gap-4"
-          >
+        <Link
+          href="/"
+          className="flex shrink-0 items-center gap-4"
+        >
 
-            {/* LOGO */}
-            <div
-              className="
+          {/* LOGO */}
+          <div
+            className="
                 flex
                 h-[72px]
                 w-[72px]
@@ -42,19 +42,19 @@ export default function Header() {
                 overflow-hidden
                 rounded-full
               "
-            >
-              <img
-                src="/logo.png"
-                alt="1M Scholars Ltd"
-                className="h-full w-full object-cover"
-              />
-            </div>
+          >
+            <img
+              src="/logo.png"
+              alt="1M Scholars Ltd"
+              className="h-full w-full object-cover"
+            />
+          </div>
 
-            {/* BRAND NAME */}
-            <div className="flex flex-col">
+          {/* BRAND NAME */}
+          <div className="flex flex-col">
 
-              <span
-                className="
+            <span
+              className="
                   whitespace-nowrap
                   text-[24px]
                   font-bold
@@ -62,12 +62,12 @@ export default function Header() {
                   tracking-[-0.5px]
                   text-[#12396B]
                 "
-              >
-                1M Scholars
-              </span>
+            >
+              1M Scholars
+            </span>
 
-              <span
-                className="
+            <span
+              className="
                   mt-1
                   whitespace-nowrap
                   text-[13px]
@@ -75,20 +75,20 @@ export default function Header() {
                   leading-[16px]
                   text-gray-400
                 "
-              >
-                Your Future, Our Mission
-              </span>
+            >
+              Your Future, Our Mission
+            </span>
 
-            </div>
+          </div>
 
-          </Link>
+        </Link>
 
 
-          {/* =================================================
+        {/* =================================================
               DESKTOP NAVIGATION
           ================================================= */}
-          <nav
-            className="
+        <nav
+          className="
               ml-auto
               hidden
               items-center
@@ -96,12 +96,12 @@ export default function Header() {
               lg:flex
               xl:gap-10
             "
-          >
+        >
 
-            {/* HOME */}
-            <Link
-              href="/"
-              className="
+          {/* HOME */}
+          <Link
+            href="/"
+            className="
                 relative
                 flex
                 h-[94px]
@@ -112,11 +112,11 @@ export default function Header() {
                 font-semibold
                 text-[#2166E8]
               "
-            >
-              Home
+          >
+            Home
 
-              <span
-                className="
+            <span
+              className="
                   absolute
                   bottom-0
                   left-0
@@ -125,8 +125,8 @@ export default function Header() {
                   rounded-t-full
                   bg-[#2166E8]
                 "
-              />
-            </Link>
+            />
+          </Link>
 
 
           {/* =================================================
@@ -151,8 +151,8 @@ export default function Header() {
       transition
       hover:text-[#2166E8]
     "
-  >
-    <span>Opportunities</span>
+            >
+              <span>Opportunities</span>
 
     <span
       className="
@@ -167,7 +167,7 @@ export default function Header() {
   </button>
 
 
-  {/* =================================================
+            {/* =================================================
       DROPDOWN
   ================================================= */}
   <div
@@ -193,17 +193,17 @@ export default function Header() {
     "
   >
 
-      <div className="grid grid-cols-[250px_1fr] overflow-hidden rounded-xl">
+                <div className="grid grid-cols-[250px_1fr] overflow-hidden rounded-xl">
 
-        {/* ==========================================
+                  {/* ==========================================
             LEFT SIDE
         ========================================== */}
-        <div className="space-y-1">
+                  <div className="space-y-1">
 
-          {/* SCHOLARSHIPS */}
-          <Link
-            href="/opportunities/scholarships"
-            className="
+                    {/* SCHOLARSHIPS */}
+                    <Link
+                      href="/opportunities/scholarships"
+                      className="
               group
               flex
               items-center
@@ -216,29 +216,29 @@ export default function Header() {
               transition
               hover:bg-[#E5F0FF]
             "
-          >
-            <div className="flex items-center gap-3">
+                    >
+                      <div className="flex items-center gap-3">
 
-              <span className="text-[20px]">
-                🎓
-              </span>
+                        <span className="text-[20px]">
+                          🎓
+                        </span>
 
-              <span className="text-[14px] font-semibold">
-                Scholarships
-              </span>
+                        <span className="text-[14px] font-semibold">
+                          Scholarships
+                        </span>
 
-            </div>
+                      </div>
 
-            <span className="text-[18px]">
-              ›
-            </span>
-          </Link>
+                      <span className="text-[18px]">
+                        ›
+                      </span>
+                    </Link>
 
 
-          {/* JOBS */}
-          <Link
-            href="/opportunities/jobs"
-            className="
+                    {/* JOBS */}
+                    <Link
+                      href="/opportunities/jobs"
+                      className="
               flex
               items-center
               gap-3
@@ -250,21 +250,21 @@ export default function Header() {
               hover:bg-gray-50
               hover:text-[#2166E8]
             "
-          >
-            <span className="text-[19px]">
-              💼
-            </span>
+                    >
+                      <span className="text-[19px]">
+                        💼
+                      </span>
 
-            <span className="text-[14px] font-semibold">
-              Jobs
-            </span>
-          </Link>
+                      <span className="text-[14px] font-semibold">
+                        Jobs
+                      </span>
+                    </Link>
 
 
-          {/* INTERNSHIPS */}
-          <Link
-            href="/opportunities/internships"
-            className="
+                    {/* INTERNSHIPS */}
+                    <Link
+                      href="/opportunities/internships"
+                      className="
               flex
               items-center
               gap-3
@@ -276,21 +276,21 @@ export default function Header() {
               hover:bg-gray-50
               hover:text-[#2166E8]
             "
-          >
-            <span className="text-[19px]">
-              👤
-            </span>
+                    >
+                      <span className="text-[19px]">
+                        👤
+                      </span>
 
-            <span className="text-[14px] font-semibold">
-              Internships
-            </span>
-          </Link>
+                      <span className="text-[14px] font-semibold">
+                        Internships
+                      </span>
+                    </Link>
 
 
-          {/* FELLOWSHIPS */}
-          <Link
-            href="/opportunities/fellowships"
-            className="
+                    {/* FELLOWSHIPS */}
+                    <Link
+                      href="/opportunities/fellowships"
+                      className="
               flex
               items-center
               gap-3
@@ -302,21 +302,21 @@ export default function Header() {
               hover:bg-gray-50
               hover:text-[#2166E8]
             "
-          >
-            <span className="text-[19px]">
-              👥
-            </span>
+                    >
+                      <span className="text-[19px]">
+                        👥
+                      </span>
 
-            <span className="text-[14px] font-semibold">
-              Fellowships
-            </span>
-          </Link>
+                      <span className="text-[14px] font-semibold">
+                        Fellowships
+                      </span>
+                    </Link>
 
 
-          {/* TRAINING */}
-          <Link
-            href="/opportunities/training"
-            className="
+                    {/* TRAINING */}
+                    <Link
+                      href="/opportunities/training"
+                      className="
               flex
               items-center
               gap-3
@@ -328,21 +328,21 @@ export default function Header() {
               hover:bg-gray-50
               hover:text-[#2166E8]
             "
-          >
-            <span className="text-[19px]">
-              📖
-            </span>
+                    >
+                      <span className="text-[19px]">
+                        📖
+                      </span>
 
-            <span className="text-[14px] font-semibold">
-              Training & Courses
-            </span>
-          </Link>
+                      <span className="text-[14px] font-semibold">
+                        Training & Courses
+                      </span>
+                    </Link>
 
 
-          {/* COMPETITIONS */}
-          <Link
-            href="/opportunities/competitions"
-            className="
+                    {/* COMPETITIONS */}
+                    <Link
+                      href="/opportunities/competitions"
+                      className="
               flex
               items-center
               gap-3
@@ -354,72 +354,72 @@ export default function Header() {
               hover:bg-gray-50
               hover:text-[#2166E8]
             "
-          >
-            <span className="text-[19px]">
-              🏆
-            </span>
+                    >
+                      <span className="text-[19px]">
+                        🏆
+                      </span>
 
-            <span className="text-[14px] font-semibold">
-              Competitions
-            </span>
-          </Link>
+                      <span className="text-[14px] font-semibold">
+                        Competitions
+                      </span>
+                    </Link>
 
-        </div>
+                  </div>
 
 
-        {/* ==========================================
+                  {/* ==========================================
             RIGHT SIDE
         ========================================== */}
-        <div
-          className="
+                  <div
+                    className="
             ml-3
             rounded-xl
             bg-[#F8FAFD]
             p-4
           "
-        >
+                  >
 
-          <img
-            src="/hero.png"
-            alt="Find opportunities"
-            className="
+                    <img
+                      src="/hero.png"
+                      alt="Find opportunities"
+                      className="
               h-[135px]
               w-full
               rounded-xl
               object-cover
             "
-          />
+                    />
 
-          <h3
-            className="
+                    <h3
+                      className="
               mt-4
               text-[18px]
               font-bold
               leading-[23px]
               text-[#12396B]
             "
-          >
-            Find the right opportunity
-            <br />
-            for your future
-          </h3>
+                    >
+                      Find the right opportunity
+                      <br />
+                      for your future
+                    </h3>
 
-          <p
-            className="
+                    <p
+                      className="
               mt-2
               text-[13px]
               leading-[20px]
               text-gray-500
             "
-          >
-            Explore scholarships, jobs,
-            internships, trainings and more
-            from trusted institutions.
-          </p>
+                    >
+                      Explore scholarships, jobs,
+                      internships, trainings and more
+                      from trusted institutions.
+                    </p>
 
-          <Link
-            href="/opportunities"
-            className="
+                    <Link
+                      href="/opportunities"
+                      className="
               mt-4
               inline-flex
               items-center
@@ -429,26 +429,26 @@ export default function Header() {
               text-[#2166E8]
               hover:underline
             "
-          >
-            Browse All Opportunities
+                    >
+                      Browse All Opportunities
 
-            <span className="text-[18px]">
-              →
-            </span>
-          </Link>
+                      <span className="text-[18px]">
+                        →
+                      </span>
+                    </Link>
 
-        </div>
+                  </div>
 
-      </div>
+                </div>
 
     </div>
 
-</div>
+          </div>
 
-           {/* scholarships */}
-            <Link
-              href="/scholarships"
-              className="
+          {/* scholarships */}
+          <Link
+            href="/scholarships"
+            className="
                 flex
                 items-center
                 gap-2
@@ -460,19 +460,19 @@ export default function Header() {
                 transition
                 hover:text-[#2166E8]
               "
-            >
-              Scholarship
+          >
+            Scholarship
 
-              <span className="text-[11px]">
-                ⌄
-              </span>
-            </Link>
+            <span className="text-[11px]">
+              ⌄
+            </span>
+          </Link>
 
 
-            {/* ABOUT */}
-            <Link
-              href="/about"
-              className="
+          {/* ABOUT */}
+          <Link
+            href="/about"
+            className="
                 flex
                 items-center
                 gap-2
@@ -484,19 +484,19 @@ export default function Header() {
                 transition
                 hover:text-[#2166E8]
               "
-            >
-              About Us
+          >
+            About Us
 
-              <span className="text-[11px]">
-                ⌄
-              </span>
-            </Link>
+            <span className="text-[11px]">
+              ⌄
+            </span>
+          </Link>
 
 
-            {/* CONTACT */}
-            <Link
-              href="/contact"
-              className="
+          {/* CONTACT */}
+          <Link
+            href="/contact"
+            className="
                 whitespace-nowrap
                 px-1
                 text-[15px]
@@ -505,18 +505,18 @@ export default function Header() {
                 transition
                 hover:text-[#2166E8]
               "
-            >
-              Contact
-            </Link>
+          >
+            Contact
+          </Link>
 
-          </nav>
+        </nav>
 
 
-          {/* =================================================
+        {/* =================================================
               ACTION BUTTONS
           ================================================= */}
-          <div
-            className="
+        <div
+          className="
               ml-6
               hidden
               shrink-0
@@ -525,12 +525,12 @@ export default function Header() {
               lg:flex
               xl:ml-10
             "
-          >
+        >
 
-            {/* SIGN IN */}
-            <Link
-              href="/login"
-              className="
+          {/* SIGN IN */}
+          <Link
+            href="/login?mode=login"
+            className="
                 flex
                 h-[46px]
                 items-center
@@ -547,19 +547,19 @@ export default function Header() {
                 transition
                 hover:bg-gray-50
               "
-            >
-              <span className="text-[15px]">
-                ♙
-              </span>
+          >
+            <span className="text-[15px]">
+              ♙
+            </span>
 
-              Sign In
-            </Link>
+            Sign In
+          </Link>
 
 
-            {/* GET STARTED */}
-            <Link
-              href="/register"
-              className="
+          {/* GET STARTED */}
+          <Link
+            href="/getstarted"
+            className="
                 flex
                 h-[46px]
                 items-center
@@ -576,20 +576,20 @@ export default function Header() {
                 transition
                 hover:bg-[#1554C7]
               "
-            >
-              <span>
-                Get Started
-              </span>
+          >
+            <span>
+              Get Started
+            </span>
 
-              <span className="text-[18px]">
-                →
-              </span>
-            </Link>
-
-          </div>
+            <span className="text-[18px]">
+              →
+            </span>
+          </Link>
 
         </div>
 
-      </header>
+      </div>
+
+    </header>
   );
 }
