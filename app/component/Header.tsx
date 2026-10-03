@@ -1,10 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 
 export default function Header() {
-  const [opportunitiesOpen, setOpportunitiesOpen] = useState(false);
 
   return (
 <header className="w-full border-b border-gray-200 bg-white">
@@ -135,9 +133,7 @@ export default function Header() {
     OPPORTUNITIES DROPDOWN
 ================================================= */}
 <div
-  className="relative"
-  onMouseEnter={() => setOpportunitiesOpen(true)}
-  onMouseLeave={() => setOpportunitiesOpen(false)}
+  className="group relative"
 >
   {/* OPPORTUNITIES BUTTON */}
   <button
@@ -159,12 +155,12 @@ export default function Header() {
     <span>Opportunities</span>
 
     <span
-      className={`
+      className="
         text-[11px]
         transition-transform
         duration-200
-        ${opportunitiesOpen ? "rotate-180" : ""}
-      `}
+        group-hover:rotate-180
+      "
     >
       ⌄
     </span>
@@ -174,23 +170,28 @@ export default function Header() {
   {/* =================================================
       DROPDOWN
   ================================================= */}
-  {opportunitiesOpen && (
-    <div
-      className="
-        absolute
-        left-1/2
-        top-[82px]
-        z-50
-        w-[680px]
-        -translate-x-1/2
-        rounded-2xl
-        border
-        border-gray-100
-        bg-white
-        p-4
-        shadow-[0_20px_60px_rgba(15,45,90,0.15)]
-      "
-    >
+  <div
+    className="
+      invisible
+      absolute
+      left-1/2
+      top-[94px]
+      z-50
+      w-[680px]
+      -translate-x-1/2
+      rounded-2xl
+      border
+      border-gray-100
+      bg-white
+      p-4
+      shadow-[0_20px_60px_rgba(15,45,90,0.15)]
+      opacity-0
+      transition-all
+      duration-200
+      group-hover:visible
+      group-hover:opacity-100
+    "
+  >
 
       <div className="grid grid-cols-[250px_1fr] overflow-hidden rounded-xl">
 
@@ -441,7 +442,6 @@ export default function Header() {
       </div>
 
     </div>
-  )}
 
 </div>
 
