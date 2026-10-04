@@ -1,7 +1,8 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import {
   validateConfirmPassword,
   validateEmail,
@@ -27,23 +28,6 @@ export type SignInState = {
   };
   message?: string;
 };
-
-// Name of the temporary local-only session cookie used while Supabase is
-// disconnected. Nothing here is a real credential store — it only lets the
-// rest of the app (Get Started, etc.) be built and tested end-to-end.
-// TODO: remove this entire local-session shim once Supabase is wired back
-// in, and restore real auth.signUp / auth.signInWithPassword calls.
-const SESSION_COOKIE = "1ms_session";
-
-async function setLocalSession(payload: Record<string, string>) {
-  const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, JSON.stringify(payload), {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-  });
-}
 
 export async function signUp(
   _prevState: SignUpState,
@@ -72,9 +56,26 @@ export async function signUp(
     return { errors };
   }
 
-  await setLocalSession({ email, fullName });
+  const supabase = await createClient();
+  const origin = (await headers()).get("origin");
 
-  redirect("/getstarted");
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { full_name: fullName },
+      emailRedirectTo: `${origin}/auth/callback`,
+    },
+  });
+
+  if (error) {
+    return { message: error.message };
+  }
+
+  return {
+    success: true,
+    message: `We sent a confirmation link to ${email}. Open it, then sign in.`,
+  };
 }
 
 export async function signIn(
@@ -97,9 +98,33 @@ export async function signIn(
     return { errors };
   }
 
-  // No backend is connected yet, so any well-formed email/password pair is
-  // accepted. Real credential checking comes back with Supabase.
-  await setLocalSession({ email });
+  const supabase = await createClient();
 
-  redirect("/getstarted");
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    if (error.message.toLowerCase().includes("email not confirmed")) {
+      return {
+        message: "Please confirm your email first. Check your inbox for the link.",
+      };
+    }
+    return { message: "Incorrect email or password." };
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarding_completed")
+    .eq("id", data.user.id)
+    .single();
+
+  redirect(profile?.onboarding_completed ? "/opportunity" : "/getstarted");
+}
+
+export async function signOut() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/login?mode=login");
 }

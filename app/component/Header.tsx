@@ -2,8 +2,15 @@
 
 import Link from "next/link";
 import { useState } from "react";
-
-export default function Header() {
+import { signOut } from "@/app/login/actions";
+import ProfileMenu from "./ProfileMenu";
+export default function Header({
+  isAdmin = false,
+  user = null,
+}: {
+  isAdmin?: boolean;
+  user?: { name: string | null; email: string | null } | null;
+}) {
   const [opportunitiesOpen, setOpportunitiesOpen] = useState(false);
 
   return (
@@ -526,65 +533,54 @@ export default function Header() {
               xl:ml-10
             "
         >
-
-          {/* SIGN IN */}
-          <Link
-            href="/login?mode=login"
-            className="
+          {/* ADMIN PORTAL (only visible to admins) */}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="
                 flex
                 h-[46px]
                 items-center
                 justify-center
-                gap-2
                 rounded-xl
-                border
-                border-[#CBD5E1]
+                bg-[#12396B]
                 px-5
                 text-[14px]
                 font-semibold
                 whitespace-nowrap
-                text-[#102F59]
-                transition
-                hover:bg-gray-50
-              "
-          >
-            <span className="text-[15px]">
-              ♙
-            </span>
-
-            Sign In
-          </Link>
-
-
-          {/* GET STARTED */}
-          <Link
-            href="/getstarted"
-            className="
-                flex
-                h-[46px]
-                items-center
-                justify-center
-                gap-5
-                rounded-xl
-                bg-[#2166E8]
-                px-6
-                text-[14px]
-                font-semibold
-                whitespace-nowrap
                 text-white
-                shadow-sm
                 transition
-                hover:bg-[#1554C7]
+                hover:bg-[#2166E8]
               "
-          >
-            <span>
-              Get Started
-            </span>
+            >
+              Admin Portal
+            </Link>
+          )}
 
-            <span className="text-[18px]">
-              →
-            </span>
-          </Link>
+          {user ? (
+            <ProfileMenu name={user.name} email={user.email} isAdmin={isAdmin} />
+
+          ) : (
+            <>
+              {/* SIGN IN */}
+              <Link
+                href="/login?mode=login"
+                className="flex h-[46px] items-center justify-center gap-2 rounded-xl border border-[#CBD5E1] px-5 text-[14px] font-semibold whitespace-nowrap text-[#102F59] transition hover:bg-gray-50"
+              >
+                <span className="text-[15px]">♙</span>
+                Sign In
+              </Link>
+
+              {/* GET STARTED */}
+              <Link
+                href="/login?mode=signup"
+                className="flex h-[46px] items-center justify-center gap-5 rounded-xl bg-[#2166E8] px-6 text-[14px] font-semibold whitespace-nowrap text-white shadow-sm transition hover:bg-[#1554C7]"
+              >
+                <span>Get Started</span>
+                <span className="text-[18px]">→</span>
+              </Link>
+            </>
+          )}
 
         </div>
 
