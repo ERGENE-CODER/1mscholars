@@ -1,10 +1,6 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 import AuthForm from "./auth-form";
-
-// TODO: once Supabase is wired back in, replace this cookie check with a
-// real session lookup (e.g. supabase.auth.getClaims()).
-const SESSION_COOKIE = "1ms_session";
 
 export default async function SignInPage({
   searchParams,
@@ -13,11 +9,17 @@ export default async function SignInPage({
 }) {
   const { mode } = await searchParams;
 
-  const cookieStore = await cookies();
-  const alreadySignedIn = Boolean(cookieStore.get(SESSION_COOKIE));
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
 
-  if (alreadySignedIn) {
-    redirect("/getstarted");
+  if (data?.claims) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("onboarding_completed")
+      .eq("id", data.claims.sub)
+      .single();
+
+    redirect(profile?.onboarding_completed ? "/opportunity" : "/getstarted");
   }
 
   return (

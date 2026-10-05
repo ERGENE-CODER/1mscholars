@@ -1,6 +1,6 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 import {
   validateCareerInterest,
   validateEducationLevel,
@@ -18,12 +18,6 @@ export type OnboardingState = {
   message?: string;
   success?: boolean;
 };
-
-// TODO: once Supabase is wired back in, verify the session via JWT
-// (auth.getClaims()) and persist these details to the `profiles` table,
-// as this action did before. For now it only validates the form and
-// confirms a local session cookie is present.
-const SESSION_COOKIE = "1ms_session";
 
 export async function completeOnboarding(
   _prevState: OnboardingState,
@@ -56,18 +50,33 @@ export async function completeOnboarding(
     return { errors };
   }
 
-  const cookieStore = await cookies();
-  const session = cookieStore.get(SESSION_COOKIE);
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
 
-  if (!session) {
+  if (!data?.claims) {
     return {
       message: "Your session has expired. Please sign in again.",
     };
   }
 
-  // Nothing is persisted yet — there is no backend connected. This just
-  // confirms the form is valid and lets the person continue to the
-  // success screen. Real persistence comes back with Supabase.
+  const { data: updated, error } = await supabase
+    .from("profiles")
+    .update({
+      phone_number: phoneNumber,
+      education_level: educationLevel,
+      interests,
+      career_interest: careerInterest,
+      onboarding_completed: true,
+    })
+    .eq("id", data.claims.sub)
+    .select("id");
+
+  if (error || !updated || updated.length === 0) {
+    return {
+      message:
+        "We couldn't save your details. Please sign out, sign in again, and retry.",
+    };
+  }
 
   return { success: true };
 }

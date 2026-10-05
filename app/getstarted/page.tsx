@@ -1,27 +1,20 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 import OnboardingForm from "./onboarding-form";
 
-// TODO: once Supabase is wired back in, replace this cookie check with a
-// real session lookup (e.g. supabase.auth.getClaims()) and re-add the
-// profiles-table onboarding_completed check that was here before.
-const SESSION_COOKIE = "1ms_session";
-
 export default async function GetStartedPage() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get(SESSION_COOKIE);
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
 
-  if (!session) {
-    redirect("/login");
+  if (!data?.claims) {
+    redirect("/login?mode=signup");
   }
 
-  let fullName: string | null = null;
-  try {
-    const parsed = JSON.parse(session.value) as { fullName?: string };
-    fullName = typeof parsed.fullName === "string" ? parsed.fullName : null;
-  } catch {
-    fullName = null;
-  }
+  const metadata = data.claims.user_metadata as
+    | { full_name?: string }
+    | undefined;
+  const fullName =
+    typeof metadata?.full_name === "string" ? metadata.full_name : null;
   const firstName = fullName?.trim().split(/\s+/)[0];
 
   return (
