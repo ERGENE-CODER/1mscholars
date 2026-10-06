@@ -78,6 +78,7 @@ export default function OnboardingForm() {
           inputMode="tel"
           autoComplete="tel"
           placeholder="+250 7XX XXX XXX"
+          defaultValue={state.values?.phoneNumber}
           aria-invalid={Boolean(state.errors?.phoneNumber)}
           className="
             h-[48px]
@@ -114,6 +115,7 @@ export default function OnboardingForm() {
                 type="radio"
                 name="educationLevel"
                 value={level}
+                defaultChecked={state.values?.educationLevel === level}
                 className="peer sr-only"
               />
               <span
@@ -158,6 +160,7 @@ export default function OnboardingForm() {
                 type="checkbox"
                 name="interests"
                 value={area}
+                defaultChecked={state.values?.interests?.includes(area)}
                 className="peer sr-only"
               />
               <span
@@ -201,6 +204,7 @@ export default function OnboardingForm() {
           name="careerInterest"
           type="text"
           placeholder="e.g. Software Engineering, Public Health, Law"
+          defaultValue={state.values?.careerInterest}
           aria-invalid={Boolean(state.errors?.careerInterest)}
           className="
             h-[48px]

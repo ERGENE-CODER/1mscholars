@@ -10,6 +10,17 @@ export default async function GetStartedPage() {
     redirect("/login?mode=signup");
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarding_completed")
+    .eq("id", data.claims.sub)
+    .maybeSingle();
+
+  // Already finished onboarding: don't show the form a second time.
+  if (profile?.onboarding_completed) {
+    redirect("/opportunity");
+  }
+
   const metadata = data.claims.user_metadata as
     | { full_name?: string }
     | undefined;
