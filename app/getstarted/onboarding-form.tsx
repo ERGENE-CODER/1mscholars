@@ -1,5 +1,6 @@
 "use client";
 
+import { OPPORTUNITIES_PATH } from "@/lib/routes";
 import { useActionState } from "react";
 import Link from "next/link";
 import { completeOnboarding, type OnboardingState } from "./actions";
@@ -36,7 +37,7 @@ export default function OnboardingForm() {
           built for your future.
         </p>
         <Link
-          href="/opportunity"
+          href={OPPORTUNITIES_PATH}
           className="
             mt-7
             inline-flex

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import type { AuthError } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteUrl } from "@/lib/site-url";
+import { OPPORTUNITIES_PATH } from "@/lib/routes";
 import {
   validateConfirmPassword,
   validateEmail,
@@ -229,7 +230,7 @@ export async function signIn(
     .eq("id", data.user.id)
     .maybeSingle();
 
-  redirect(profile?.onboarding_completed ? "/opportunity" : "/getstarted");
+  redirect(profile?.onboarding_completed ? OPPORTUNITIES_PATH : "/getstarted");
 }
 
 export async function resendConfirmation(

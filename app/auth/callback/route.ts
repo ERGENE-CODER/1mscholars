@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { OPPORTUNITIES_PATH } from "@/lib/routes";
 
 /**
  * Where the confirmation email link lands.
@@ -37,6 +38,6 @@ export async function GET(request: Request) {
     .maybeSingle();
 
   return NextResponse.redirect(
-    `${origin}${profile?.onboarding_completed ? "/opportunity" : "/getstarted"}`
+    `${origin}${profile?.onboarding_completed ? OPPORTUNITIES_PATH : "/getstarted"}`
   );
 }

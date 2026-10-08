@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { LogOut } from "lucide-react";
+import Link from "next/link";
+import { ClipboardList, LogOut } from "lucide-react";
 import { signOut } from "@/app/login/actions";
 
 export default function ProfileMenu({
@@ -67,7 +68,18 @@ export default function ProfileMenu({
                         </div>
                     </div>
 
-                    <form action={signOut} className="pt-3">
+                    <div className="pt-3">
+                        <Link
+                            href="/my-applications"
+                            onClick={() => setOpen(false)}
+                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-semibold text-[#102F59] transition hover:bg-gray-50 hover:text-[#2166E8]"
+                        >
+                            <ClipboardList size={17} />
+                            My Applications
+                        </Link>
+                    </div>
+
+                    <form action={signOut} className="pt-1">
                         <button
                             type="submit"
                             className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-semibold text-[#102F59] transition hover:bg-gray-50 hover:text-red-600"

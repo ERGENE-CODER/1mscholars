@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { OPPORTUNITIES_PATH } from "@/lib/routes";
 import AuthForm from "./auth-form";
 
 export default async function SignInPage() {
@@ -14,7 +15,7 @@ export default async function SignInPage() {
       .eq("id", data.claims.sub)
       .maybeSingle();
 
-    redirect(profile?.onboarding_completed ? "/opportunity" : "/getstarted");
+    redirect(profile?.onboarding_completed ? OPPORTUNITIES_PATH : "/getstarted");
   }
 
   return (
