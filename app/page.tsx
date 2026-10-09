@@ -73,14 +73,14 @@ export default function Home() {
           </Link>
 
           <Link
-            href="/about"
+            href="/aboutus"
             className="whitespace-nowrap text-sm font-semibold text-[#102F59]"
           >
             About
           </Link>
 
           <Link
-            href="/contact"
+            href="/contactus"
             className="whitespace-nowrap text-sm font-semibold text-[#102F59]"
           >
             Contact
