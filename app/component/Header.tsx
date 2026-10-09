@@ -479,7 +479,7 @@ export default function Header({
 
           </div>
 
-          {/* scholarships */}
+          {/* scholarships
           <Link
             href="/scholarships"
             className="
@@ -500,7 +500,7 @@ export default function Header({
             <span className="text-[11px]">
               ⌄
             </span>
-          </Link>
+          </Link> */}
 
 
           {/* ABOUT */}
