@@ -94,6 +94,31 @@ export default function Header({
 
 
         {/* =================================================
+              MOBILE / TABLET AUTH LINKS
+              (the desktop buttons below are lg+ only)
+          ================================================= */}
+        <div className="ml-auto flex items-center gap-2 lg:hidden">
+          {user ? (
+            <ProfileMenu name={user.name} email={user.email} isAdmin={isAdmin} />
+          ) : (
+            <>
+              <Link
+                href="/login?mode=login"
+                className="flex h-[40px] items-center justify-center rounded-xl border border-[#CBD5E1] px-3 text-[13px] font-semibold whitespace-nowrap text-[#102F59] transition hover:bg-gray-50"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/login?mode=signup"
+                className="flex h-[40px] items-center justify-center rounded-xl bg-[#2166E8] px-3 text-[13px] font-semibold whitespace-nowrap text-white shadow-sm transition hover:bg-[#1554C7]"
+              >
+                Get Started
+              </Link>
+            </>
+          )}
+        </div>
+
+        {/* =================================================
               DESKTOP NAVIGATION
           ================================================= */}
         <nav

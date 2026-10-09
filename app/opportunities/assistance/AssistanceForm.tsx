@@ -7,6 +7,7 @@ import { EmptyState, ErrorState, PageSkeleton } from "../../component/StateViews
 import {
   fetchApplicationForm,
   isEmptyAnswer,
+  isSignedIn,
   submitApplication,
   type AnswerValue,
   type ApplicationField,
@@ -47,6 +48,7 @@ export default function AssistanceForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [applicationId, setApplicationId] = useState<number | null>(null);
+  const [trackable, setTrackable] = useState(false);
 
   if (opportunityId === null) {
     return <Shell><EmptyState><h1 className="text-xl font-bold text-[#102F59]">Choose an opportunity first</h1><p className="mt-2 text-sm">Open an opportunity and select &ldquo;Ask for Assistance&rdquo; to start an application.</p><Link href="/opportunities" className="mt-6 inline-flex h-11 items-center rounded-xl bg-[#2166E8] px-5 text-sm font-bold text-white">Browse Opportunities</Link></EmptyState></Shell>;
@@ -65,7 +67,7 @@ export default function AssistanceForm() {
   const { opportunity, form } = data;
 
   if (applicationId !== null) {
-    return <main className="min-h-screen bg-[#F8FAFD] px-5 py-16"><div className="mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#E9F8EF] text-2xl text-emerald-600">✓</div><h1 className="mt-5 text-2xl font-bold text-[#102F59]">Application Received</h1><p className="mt-3 text-sm leading-6 text-slate-500">We have received your request for application assistance. Our team can review the information and contact you regarding the next steps.</p><p className="mt-3 text-xs font-semibold text-slate-400">Reference: #{applicationId}</p><Link href="/opportunities" className="mt-6 inline-flex h-11 items-center rounded-xl bg-[#2166E8] px-5 text-sm font-bold text-white">Back to Opportunities</Link></div></main>;
+    return <main className="min-h-screen bg-[#F8FAFD] px-5 py-16"><div className="mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#E9F8EF] text-2xl text-emerald-600">✓</div><h1 className="mt-5 text-2xl font-bold text-[#102F59]">Application Received</h1><p className="mt-3 text-sm leading-6 text-slate-500">We have received your request for application assistance. Our team can review the information and contact you regarding the next steps.</p><p className="mt-3 text-xs font-semibold text-slate-400">Reference: #{applicationId}</p>{trackable ? null : <p className="mt-4 text-xs leading-5 text-slate-500">Sign in next time you apply to track your applications from your profile menu.</p>}<div className="mt-6 flex flex-wrap items-center justify-center gap-3">{trackable && <Link href="/my-applications" className="inline-flex h-11 items-center rounded-xl bg-[#2166E8] px-5 text-sm font-bold text-white">Track my application</Link>}<Link href="/opportunities" className={trackable ? "inline-flex h-11 items-center rounded-xl border border-slate-200 px-5 text-sm font-bold text-[#102F59]" : "inline-flex h-11 items-center rounded-xl bg-[#2166E8] px-5 text-sm font-bold text-white"}>Back to Opportunities</Link></div></div></main>;
   }
 
   const fields = form?.fields ?? [];
@@ -97,6 +99,7 @@ export default function AssistanceForm() {
     setSubmitError(null);
     try {
       const id = await submitApplication({ opportunityId: opportunity.id, form, values });
+      setTrackable(await isSignedIn().catch(() => false));
       setApplicationId(id);
       window.scrollTo({ top: 0 });
     } catch (err) {

@@ -1,14 +1,10 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { OPPORTUNITIES_PATH } from "@/lib/routes";
 import AuthForm from "./auth-form";
 
-export default async function SignInPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ mode?: string }>;
-}) {
-  const { mode } = await searchParams;
-
+export default async function SignInPage() {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
 
@@ -17,14 +13,17 @@ export default async function SignInPage({
       .from("profiles")
       .select("onboarding_completed")
       .eq("id", data.claims.sub)
-      .single();
+      .maybeSingle();
 
-    redirect(profile?.onboarding_completed ? "/opportunity" : "/getstarted");
+    redirect(profile?.onboarding_completed ? OPPORTUNITIES_PATH : "/getstarted");
   }
 
   return (
     <main className="flex min-h-[calc(100vh-94px)] w-full items-center justify-center bg-[#EEF5FF] px-4 py-12 sm:px-6">
-      <AuthForm initialMode={mode === "login" ? "login" : "signup"} />
+      {/* AuthForm reads ?mode= from the URL itself (see auth-form.tsx). */}
+      <Suspense fallback={null}>
+        <AuthForm />
+      </Suspense>
     </main>
   );
 }

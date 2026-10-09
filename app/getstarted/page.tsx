@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { OPPORTUNITIES_PATH } from "@/lib/routes";
 import OnboardingForm from "./onboarding-form";
 
 export default async function GetStartedPage() {
@@ -8,6 +9,17 @@ export default async function GetStartedPage() {
 
   if (!data?.claims) {
     redirect("/login?mode=signup");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarding_completed")
+    .eq("id", data.claims.sub)
+    .maybeSingle();
+
+  // Already finished onboarding: don't show the form a second time.
+  if (profile?.onboarding_completed) {
+    redirect(OPPORTUNITIES_PATH);
   }
 
   const metadata = data.claims.user_metadata as

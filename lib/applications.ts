@@ -200,3 +200,9 @@ export async function submitApplication(params: {
 
   return applicationId;
 }
+
+/** True when a user is signed in on this browser (so the new application can be tracked). */
+export async function isSignedIn(): Promise<boolean> {
+  const { data } = await getSupabase().auth.getSession();
+  return Boolean(data.session);
+}
