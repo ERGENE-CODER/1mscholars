@@ -15,6 +15,7 @@ type OpportunityRow = {
   image_url: string | null;
   status: OpportunityStatus;
   featured: boolean;
+  category: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -104,6 +105,20 @@ export function formatDeadline(date: string | null) {
 
 const byPosition = <T extends { position: number; id: number }>(a: T, b: T) => a.position - b.position || a.id - b.id;
 
+function uniqueCategories(names: (string | null | undefined)[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of names) {
+    const name = raw?.trim();
+    if (!name) continue;
+    const key = categoryKey(name);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(name);
+  }
+  return out;
+}
+
 function mapOpportunity(row: OpportunityQueryRow): Opportunity {
   const location = [row.location, row.country].filter((v, i, arr): v is string => Boolean(v) && arr.indexOf(v) === i).join(", ");
   return {
@@ -120,7 +135,12 @@ function mapOpportunity(row: OpportunityQueryRow): Opportunity {
     status: row.status,
     featured: row.featured,
     createdAt: row.created_at,
-    programs: (row.opportunity_programs ?? []).slice().sort(byPosition).map((p) => p.program_name),
+    // The category column (set in the admin panel) comes first so it is the primary category;
+    // program names are kept after it. Duplicates (ignoring case / plural "s") are dropped.
+    programs: uniqueCategories([
+      row.category,
+      ...(row.opportunity_programs ?? []).slice().sort(byPosition).map((p) => p.program_name),
+    ]),
     requirements: (row.opportunity_requirements ?? []).slice().sort(byPosition).map((r) => r.requirement),
     benefits: (row.opportunity_benefits ?? []).slice().sort(byPosition).map((b) => b.benefit),
   };

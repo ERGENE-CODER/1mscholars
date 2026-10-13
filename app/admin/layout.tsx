@@ -16,7 +16,7 @@ export default async function AdminLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, full_name")
     .eq("id", data.claims.sub)
     .maybeSingle();
 
@@ -24,5 +24,15 @@ export default async function AdminLayout({
     redirect("/");
   }
 
-  return <AdminShell>{children}</AdminShell>;
+  // Applications waiting for the team (shown on the bell).
+  const { count } = await supabase
+    .from("applications")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "submitted");
+
+  return (
+    <AdminShell adminName={profile?.full_name?.trim() || "Administrator"} pendingCount={count ?? 0}>
+      {children}
+    </AdminShell>
+  );
 }

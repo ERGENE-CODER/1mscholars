@@ -177,7 +177,14 @@ export default async function AdminApplicationsPage({
                   </div>
                 </dl>
 
-                <form action={setApplicationStatus} className="mt-4">
+                <Link
+                  href={`/admin/applications/${app.id}`}
+                  className="mt-4 mr-2 inline-flex h-10 items-center rounded-xl border border-slate-300 px-4 text-[13px] font-semibold text-[#102F59] transition hover:bg-slate-50"
+                >
+                  View answers
+                </Link>
+
+                <form action={setApplicationStatus} className="mt-4 inline-block">
                   <input type="hidden" name="id" value={app.id} />
                   <input type="hidden" name="filter" value={filter} />
                   {meta.completed ? (

@@ -23,6 +23,7 @@ import {
   UserPlus,
   Image,
   MessageSquare,
+  Mail,
 } from "lucide-react";
 import { useState } from "react";
 import { signOut } from "@/app/login/actions";
@@ -85,6 +86,11 @@ const mainNavigation = [
     icon: Users,
   },
   {
+    name: "Messages",
+    href: "/admin/messages",
+    icon: Mail,
+  },
+  {
     name: "Subscribers",
     href: "/admin/subscribers",
     icon: UserPlus,
@@ -112,8 +118,12 @@ const mainNavigation = [
 
 export default function AdminShell({
   children,
+  adminName,
+  pendingCount,
 }: {
   children: React.ReactNode;
+  adminName: string;
+  pendingCount: number;
 }) {
   const pathname = usePathname();
 
@@ -316,19 +326,19 @@ export default function AdminShell({
 
             {/* Search */}
 
-            <div className="hidden w-[420px] items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 md:flex">
+            <form
+              action="/admin/opportunities"
+              className="hidden w-[420px] items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 md:flex"
+            >
               <Search size={19} className="text-slate-400" />
 
               <input
-                type="text"
-                placeholder="Search opportunities, users, applications..."
+                type="search"
+                name="q"
+                placeholder="Search opportunities..."
                 className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
               />
-
-              <span className="rounded border border-slate-200 bg-white px-2 py-1 text-xs text-slate-400">
-                Ctrl K
-              </span>
-            </div>
+            </form>
           </div>
 
           {/* HEADER RIGHT */}
@@ -336,13 +346,20 @@ export default function AdminShell({
           <div className="flex items-center gap-4">
             {/* Notifications */}
 
-            <button className="relative rounded-lg p-2.5 hover:bg-slate-100">
+            <Link
+              href="/admin/applications?status=submitted"
+              className="relative rounded-lg p-2.5 hover:bg-slate-100"
+              aria-label={`${pendingCount} applications waiting`}
+              title={`${pendingCount} application${pendingCount === 1 ? "" : "s"} waiting`}
+            >
               <Bell size={21} className="text-slate-600" />
 
-              <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-                3
-              </span>
-            </button>
+              {pendingCount > 0 && (
+                <span className="absolute right-0.5 top-0.5 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                  {pendingCount > 99 ? "99+" : pendingCount}
+                </span>
+              )}
+            </Link>
 
             {/* Divider */}
 
@@ -352,12 +369,12 @@ export default function AdminShell({
 
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700">
-                A
+                {adminName.charAt(0).toUpperCase()}
               </div>
 
               <div className="hidden sm:block">
-                <p className="text-sm font-semibold text-slate-800">
-                  Administrator
+                <p className="max-w-[160px] truncate text-sm font-semibold text-slate-800">
+                  {adminName}
                 </p>
 
                 <p className="text-xs text-slate-500">Administrator</p>
