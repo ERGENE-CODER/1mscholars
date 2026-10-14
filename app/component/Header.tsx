@@ -1,9 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { signOut } from "@/app/login/actions";
+import { usePathname } from "next/navigation";
 import ProfileMenu from "./ProfileMenu";
+
+// Rows in the Opportunities dropdown. The row for the page you're on is highlighted.
+const OPPORTUNITY_CATEGORIES = [
+  { href: "/opportunities/scholarships", label: "Scholarships", icon: "🎓" },
+  { href: "/opportunities/jobs", label: "Jobs", icon: "💼" },
+  { href: "/opportunities/internships", label: "Internships", icon: "👤" },
+  { href: "/opportunities/fellowships", label: "Fellowships", icon: "👥" },
+  { href: "/opportunities/training", label: "Training & Courses", icon: "📖" },
+  { href: "/opportunities/competitions", label: "Competitions", icon: "🏆" },
+] as const;
+
+// Every top-level nav item uses the same size and weight; only colour changes.
+const NAV_ITEM_BASE =
+  "relative flex h-[94px] items-center gap-2 whitespace-nowrap px-1 text-[15px] font-semibold transition";
+
+function navItemClass(active: boolean) {
+  return `${NAV_ITEM_BASE} ${
+    active ? "text-[#2166E8]" : "text-[#102F59] hover:text-[#2166E8]"
+  }`;
+}
+
+/** Blue underline under the page you're on. */
+function ActiveBar({ active }: { active: boolean }) {
+  if (!active) return null;
+  return (
+    <span className="absolute bottom-0 left-0 h-[3px] w-full rounded-t-full bg-[#2166E8]" />
+  );
+}
+
 export default function Header({
   isAdmin = false,
   user = null,
@@ -11,7 +39,11 @@ export default function Header({
   isAdmin?: boolean;
   user?: { name: string | null; email: string | null } | null;
 }) {
-  const [opportunitiesOpen, setOpportunitiesOpen] = useState(false);
+  const pathname = usePathname() ?? "/";
+  const isHome = pathname === "/";
+  const isOpportunities = pathname.startsWith("/opportunities");
+  const isAbout = pathname.startsWith("/about");
+  const isContact = pathname.startsWith("/contact");
 
   return (
     <header className="w-full border-b border-gray-200 bg-white">
@@ -94,72 +126,39 @@ export default function Header({
 
 
         {/* =================================================
-              MOBILE / TABLET AUTH LINKS
-              (the desktop buttons below are lg+ only)
+              MOBILE / TABLET AUTH LINK
+              (the desktop navigation below is lg+ only)
           ================================================= */}
         <div className="ml-auto flex items-center gap-2 lg:hidden">
           {user ? (
             <ProfileMenu name={user.name} email={user.email} isAdmin={isAdmin} />
           ) : (
-            <>
-              <Link
-                href="/login?mode=login"
-                className="flex h-[40px] items-center justify-center rounded-xl border border-[#CBD5E1] px-3 text-[13px] font-semibold whitespace-nowrap text-[#102F59] transition hover:bg-gray-50"
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/login?mode=signup"
-                className="flex h-[40px] items-center justify-center rounded-xl bg-[#2166E8] px-3 text-[13px] font-semibold whitespace-nowrap text-white shadow-sm transition hover:bg-[#1554C7]"
-              >
-                Get Started
-              </Link>
-            </>
+            <Link
+              href="/login?mode=signup"
+              className="flex h-[40px] items-center justify-center rounded-xl bg-[#2166E8] px-4 text-[13px] font-semibold whitespace-nowrap text-white shadow-sm transition hover:bg-[#1554C7]"
+            >
+              Get Started
+            </Link>
           )}
         </div>
 
         {/* =================================================
               DESKTOP NAVIGATION
+              flex-1 + justify-evenly = equal spacing between items
           ================================================= */}
         <nav
-          className="
-              ml-auto
-              hidden
-              items-center
-              gap-8
-              lg:flex
-              xl:gap-10
-            "
+          aria-label="Main"
+          className="mx-6 hidden max-w-[760px] flex-1 items-center justify-evenly lg:flex xl:mx-auto"
         >
 
           {/* HOME */}
           <Link
             href="/"
-            className="
-                relative
-                flex
-                h-[94px]
-                items-center
-                whitespace-nowrap
-                px-1
-                text-[15px]
-                font-semibold
-                text-[#2166E8]
-              "
+            aria-current={isHome ? "page" : undefined}
+            className={navItemClass(isHome)}
           >
             Home
-
-            <span
-              className="
-                  absolute
-                  bottom-0
-                  left-0
-                  h-[3px]
-                  w-full
-                  rounded-t-full
-                  bg-[#2166E8]
-                "
-            />
+            <ActiveBar active={isHome} />
           </Link>
 
 
@@ -170,23 +169,12 @@ export default function Header({
   className="group relative"
 >
   {/* OPPORTUNITIES BUTTON */}
-  <button
-    type="button"
-    className="
-      flex
-      h-[94px]
-      items-center
-      gap-2
-      whitespace-nowrap
-      px-1
-      text-[15px]
-      font-semibold
-      text-[#102F59]
-      transition
-      hover:text-[#2166E8]
-    "
-            >
-              <span>Opportunities</span>
+  <Link
+    href="/opportunities"
+    aria-current={isOpportunities ? "page" : undefined}
+    className={navItemClass(isOpportunities)}
+  >
+    <span>Opportunities</span>
 
     <span
       className="
@@ -198,7 +186,8 @@ export default function Header({
     >
       ⌄
     </span>
-  </button>
+    <ActiveBar active={isOpportunities} />
+  </Link>
 
 
             {/* =================================================
@@ -224,6 +213,8 @@ export default function Header({
       duration-200
       group-hover:visible
       group-hover:opacity-100
+      group-focus-within:visible
+      group-focus-within:opacity-100
     "
   >
 
@@ -234,169 +225,29 @@ export default function Header({
         ========================================== */}
                   <div className="space-y-1">
 
-                    {/* SCHOLARSHIPS */}
-                    <Link
-                      href="/opportunities/scholarships"
-                      className="
-              group
-              flex
-              items-center
-              justify-between
-              rounded-xl
-              bg-[#EEF5FF]
-              px-4
-              py-3.5
-              text-[#2166E8]
-              transition
-              hover:bg-[#E5F0FF]
-            "
-                    >
-                      <div className="flex items-center gap-3">
-
-                        <span className="text-[20px]">
-                          🎓
-                        </span>
-
-                        <span className="text-[14px] font-semibold">
-                          Scholarships
-                        </span>
-
-                      </div>
-
-                      <span className="text-[18px]">
-                        ›
-                      </span>
-                    </Link>
-
-
-                    {/* JOBS */}
-                    <Link
-                      href="/opportunities/jobs"
-                      className="
-              flex
-              items-center
-              gap-3
-              rounded-xl
-              px-4
-              py-3
-              text-[#102F59]
-              transition
-              hover:bg-gray-50
-              hover:text-[#2166E8]
-            "
-                    >
-                      <span className="text-[19px]">
-                        💼
-                      </span>
-
-                      <span className="text-[14px] font-semibold">
-                        Jobs
-                      </span>
-                    </Link>
-
-
-                    {/* INTERNSHIPS */}
-                    <Link
-                      href="/opportunities/internships"
-                      className="
-              flex
-              items-center
-              gap-3
-              rounded-xl
-              px-4
-              py-3
-              text-[#102F59]
-              transition
-              hover:bg-gray-50
-              hover:text-[#2166E8]
-            "
-                    >
-                      <span className="text-[19px]">
-                        👤
-                      </span>
-
-                      <span className="text-[14px] font-semibold">
-                        Internships
-                      </span>
-                    </Link>
-
-
-                    {/* FELLOWSHIPS */}
-                    <Link
-                      href="/opportunities/fellowships"
-                      className="
-              flex
-              items-center
-              gap-3
-              rounded-xl
-              px-4
-              py-3
-              text-[#102F59]
-              transition
-              hover:bg-gray-50
-              hover:text-[#2166E8]
-            "
-                    >
-                      <span className="text-[19px]">
-                        👥
-                      </span>
-
-                      <span className="text-[14px] font-semibold">
-                        Fellowships
-                      </span>
-                    </Link>
-
-
-                    {/* TRAINING */}
-                    <Link
-                      href="/opportunities/training"
-                      className="
-              flex
-              items-center
-              gap-3
-              rounded-xl
-              px-4
-              py-3
-              text-[#102F59]
-              transition
-              hover:bg-gray-50
-              hover:text-[#2166E8]
-            "
-                    >
-                      <span className="text-[19px]">
-                        📖
-                      </span>
-
-                      <span className="text-[14px] font-semibold">
-                        Training & Courses
-                      </span>
-                    </Link>
-
-
-                    {/* COMPETITIONS */}
-                    <Link
-                      href="/opportunities/competitions"
-                      className="
-              flex
-              items-center
-              gap-3
-              rounded-xl
-              px-4
-              py-3
-              text-[#102F59]
-              transition
-              hover:bg-gray-50
-              hover:text-[#2166E8]
-            "
-                    >
-                      <span className="text-[19px]">
-                        🏆
-                      </span>
-
-                      <span className="text-[14px] font-semibold">
-                        Competitions
-                      </span>
-                    </Link>
+                    {OPPORTUNITY_CATEGORIES.map((item) => {
+                      const active = pathname === item.href;
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          aria-current={active ? "page" : undefined}
+                          className={`flex items-center justify-between rounded-xl px-4 py-3 transition ${
+                            active
+                              ? "bg-[#EEF5FF] text-[#2166E8] hover:bg-[#E5F0FF]"
+                              : "text-[#102F59] hover:bg-gray-50 hover:text-[#2166E8]"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-[20px]">{item.icon}</span>
+                            <span className="text-[14px] font-semibold">
+                              {item.label}
+                            </span>
+                          </div>
+                          {active && <span className="text-[18px]">›</span>}
+                        </Link>
+                      );
+                    })}
 
                   </div>
 
@@ -506,41 +357,22 @@ export default function Header({
           {/* ABOUT */}
           <Link
             href="/about"
-            className="
-                flex
-                items-center
-                gap-2
-                whitespace-nowrap
-                px-1
-                text-[15px]
-                font-semibold
-                text-[#102F59]
-                transition
-                hover:text-[#2166E8]
-              "
+            aria-current={isAbout ? "page" : undefined}
+            className={navItemClass(isAbout)}
           >
-            About Us
-
-            <span className="text-[11px]">
-              ⌄
-            </span>
+            About us
+            <ActiveBar active={isAbout} />
           </Link>
 
 
           {/* CONTACT */}
           <Link
             href="/contact"
-            className="
-                whitespace-nowrap
-                px-1
-                text-[15px]
-                font-semibold
-                text-[#102F59]
-                transition
-                hover:text-[#2166E8]
-              "
+            aria-current={isContact ? "page" : undefined}
+            className={navItemClass(isContact)}
           >
             Contact
+            <ActiveBar active={isContact} />
           </Link>
 
         </nav>
@@ -551,13 +383,11 @@ export default function Header({
           ================================================= */}
         <div
           className="
-              ml-6
               hidden
               shrink-0
               items-center
               gap-3
               lg:flex
-              xl:ml-10
             "
         >
           {/* ADMIN PORTAL (only visible to admins) */}
@@ -589,16 +419,8 @@ export default function Header({
 
           ) : (
             <>
-              {/* SIGN IN */}
-              <Link
-                href="/login?mode=login"
-                className="flex h-[46px] items-center justify-center gap-2 rounded-xl border border-[#CBD5E1] px-5 text-[14px] font-semibold whitespace-nowrap text-[#102F59] transition hover:bg-gray-50"
-              >
-                <span className="text-[15px]">♙</span>
-                Sign In
-              </Link>
-
-              {/* GET STARTED */}
+              {/* GET STARTED: one button; the page it opens has both
+                  "Create Account" and "Sign In" tabs */}
               <Link
                 href="/login?mode=signup"
                 className="flex h-[46px] items-center justify-center gap-5 rounded-xl bg-[#2166E8] px-6 text-[14px] font-semibold whitespace-nowrap text-white shadow-sm transition hover:bg-[#1554C7]"
