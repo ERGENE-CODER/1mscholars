@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";   // ← add
 import { useState } from "react";
 import { signOut } from "@/app/login/actions";
 import ProfileMenu from "./ProfileMenu";
+
 export default function Header({
   isAdmin = false,
   user = null,
@@ -11,7 +13,12 @@ export default function Header({
   isAdmin?: boolean;
   user?: { name: string | null; email: string | null } | null;
 }) {
+  const pathname = usePathname();                                  // ← add
   const [opportunitiesOpen, setOpportunitiesOpen] = useState(false);
+
+  // The admin panel has its own top bar, so don't show the public header there.
+  if (pathname.startsWith("/admin")) return null;                  // ← add
+
 
   return (
     <header className="w-full border-b border-gray-200 bg-white">
