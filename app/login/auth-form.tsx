@@ -431,8 +431,8 @@ export default function AuthForm() {
           onClick={() => setMode("signup")}
           className={`h-[40px] flex-1 rounded-lg text-[14px] font-semibold transition ${
             isSignUp
-              ? "bg-white text-[#12396B] shadow-sm"
-              : "text-[#2166E8]/70 hover:text-[#2166E8]"
+              ? "bg-[#2166E8] text-white shadow-sm"
+              : "text-[#12396B] hover:bg-white/70 hover:text-[#2166E8]"
           }`}
         >
           Create Account
@@ -444,8 +444,8 @@ export default function AuthForm() {
           onClick={() => setMode("login")}
           className={`h-[40px] flex-1 rounded-lg text-[14px] font-semibold transition ${
             !isSignUp
-              ? "bg-white text-[#12396B] shadow-sm"
-              : "text-[#2166E8]/70 hover:text-[#2166E8]"
+              ? "bg-[#2166E8] text-white shadow-sm"
+              : "text-[#12396B] hover:bg-white/70 hover:text-[#2166E8]"
           }`}
         >
           Sign In
