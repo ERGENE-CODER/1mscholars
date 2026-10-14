@@ -159,6 +159,30 @@ export async function fetchPublishedOpportunities(): Promise<Opportunity[]> {
   return ((data ?? []) as unknown as OpportunityQueryRow[]).map(mapOpportunity);
 }
 
+/** The `limit` most recently added published opportunities (for the homepage). */
+export async function fetchLatestOpportunities(limit = 6): Promise<Opportunity[]> {
+  const { data, error } = await getSupabase()
+    .from("opportunities")
+    .select(OPPORTUNITY_SELECT)
+    .eq("status", "published")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as unknown as OpportunityQueryRow[]).map(mapOpportunity);
+}
+
+/** Published opportunities that are still open: no deadline, or a deadline that hasn't passed. */
+export async function fetchActiveOpportunityCount(): Promise<number> {
+  const today = new Date().toISOString().slice(0, 10);
+  const { count, error } = await getSupabase()
+    .from("opportunities")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "published")
+    .or(`deadline.is.null,deadline.gte.${today}`);
+  if (error) throw new Error(error.message);
+  return count ?? 0;
+}
+
 /** One opportunity with its programs, requirements and benefits. Returns null when it doesn't exist or isn't public. */
 export async function fetchOpportunity(id: number): Promise<Opportunity | null> {
   const { data, error } = await getSupabase()

@@ -1,4 +1,5 @@
 import Header from "./component/Header";
+import Footer from "./component/Footer";
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -59,6 +60,7 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col">
         <Header isAdmin={isAdmin} user={user} />
         {children}
+        <Footer />
       </body>
     </html>
   );

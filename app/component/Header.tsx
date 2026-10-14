@@ -40,6 +40,10 @@ export default function Header({
   user?: { name: string | null; email: string | null } | null;
 }) {
   const pathname = usePathname() ?? "/";
+
+  // The admin panel has its own top bar, so don't show the public header there.   // ← added
+  if (pathname.startsWith("/admin")) return null;                                  // ← added
+
   const isHome = pathname === "/";
   const isOpportunities = pathname.startsWith("/opportunities");
   const isAbout = pathname.startsWith("/about");
