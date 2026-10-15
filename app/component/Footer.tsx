@@ -26,12 +26,12 @@ const PHONES = ["+250 781 841 929", "+250 782 774 986", "+250 789 422 004"];
 // TODO: check that these addresses are your real accounts, and put your WhatsApp *Channel*
 // link (https://whatsapp.com/channel/...) in WHATSAPP_CHANNEL.
 const SOCIALS = [
-  { label: "Facebook", href: "https://facebook.com/1MscholarsLtd", icon: FaFacebookF },
-  { label: "Instagram", href: "https://instagram.com/1mscholarsltd", icon: FaInstagram },
-  { label: "Twitter", href: "https://twitter.com/1MscholarsLtd", icon: FaTwitter },
-  { label: "TikTok", href: "https://tiktok.com/@1mscholarsltd", icon: FaTiktok },
-  { label: "LinkedIn", href: "https://linkedin.com/company/1mscholarsltd", icon: FaLinkedinIn },
-  { label: "YouTube", href: "https://youtube.com/@1mscholarsltdservices", icon: FaYoutube },
+  { label: "Facebook", href: "https://www.facebook.com/1MscholarsLtd", icon: FaFacebookF },
+  { label: "Instagram", href: "https://www.instagram.com/1MscholarsLtd", icon: FaInstagram },
+  { label: "Twitter", href: "https://www.twitter.com/1MscholarsLtd", icon: FaTwitter },
+  { label: "TikTok", href: "https://www.tiktok.com/@1MscholarsLtd", icon: FaTiktok },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/1mscholars", icon: FaLinkedinIn },
+  { label: "YouTube", href: "https://www.youtube.com/@1mscholarsltdservices", icon: FaYoutube },
   { label: "WhatsApp", href: "https://wa.me/250781841929", icon: FaWhatsapp },
 ];
 const WHATSAPP_CHANNEL = "https://wa.me/250781841929";
