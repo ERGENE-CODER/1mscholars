@@ -9,8 +9,8 @@ export const metadata: Metadata = {
 // TODO: replace these placeholders with your real contact details.
 // Leave a value as an empty string to hide that item.
 const CONTACT = {
-  email: "hello@example.com",
-  phone: "+250 000 000 000",
+  email: "1mscholarsltd@gmail.com",
+  phone: "+250 781 841 929",
   address: "Kigali, Rwanda",
   hours: "Monday to Friday, 8:00–17:00",
 };
