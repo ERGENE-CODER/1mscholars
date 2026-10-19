@@ -3,21 +3,16 @@ import LatestOpportunities from "./component/home/LatestOpportunities";
 import StatsCounter from "./component/home/StatsCounter";
 import Testimonials from "./component/home/Testimonials";
 import Faq from "./component/home/Faq";
+import HeroCarousel from "./component/home/HeroCarousel";
 
 export default function Home() {
-  return (
+   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-white">
       {/* =====================================================
-          HERO SECTION
+          HERO CAROUSEL
       ===================================================== */}
-      <section className="relative w-full overflow-hidden">
-        {/* BACKGROUND IMAGE */}
-        <img
-          src="/hero.png"
-          alt="Graduate looking toward a brighter future"
-          className="block h-auto min-h-[500px] w-full object-cover object-center"
-        />
-      </section>
+      <HeroCarousel />
+
 
       {/* =====================================================
           MOBILE NAVIGATION
