@@ -76,7 +76,7 @@ export default function HeroCarousel() {
       role="region"
       aria-roledescription="carousel"
       aria-label="Featured opportunities"
-      className="relative h-[540px] w-full overflow-hidden bg-[#0A1F44] sm:h-[600px] lg:h-[660px]"
+      className="relative h-full min-h-[420px] w-full overflow-hidden bg-[#0A1F44]"
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       onFocus={() => setHovering(true)}
@@ -112,27 +112,27 @@ export default function HeroCarousel() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#0A1F44]/90 via-[#0A1F44]/65 to-[#0A1F44]/10" />
             <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0A1F44]/60 to-transparent" />
 
-            <div className="relative mx-auto flex h-full max-w-[1240px] items-center px-5 sm:px-8 md:px-20">
+            <div className="relative mx-auto flex h-full max-w-[1240px] items-center px-6 sm:px-10 md:px-16">
               <div
-                className={`max-w-xl transition-all duration-700 motion-reduce:transition-none ${active ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"}`}
+                className={`max-w-md transition-all duration-700 motion-reduce:transition-none ${active ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"}`}
               >
                 <span className="inline-flex rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white backdrop-blur-sm">
                   {slide.kicker}
                 </span>
-                <h2 className="mt-4 text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
+                <h2 className="mt-4 text-2xl font-bold leading-tight tracking-tight text-white sm:text-3xl xl:text-4xl">
                   {slide.title}
                 </h2>
-                <p className="mt-4 max-w-lg text-[15px] leading-7 text-blue-100 sm:text-base">{slide.text}</p>
-                <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <p className="mt-3 max-w-md text-[14px] leading-6 text-blue-100 sm:text-[15px]">{slide.text}</p>
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                   <Link
                     href={slide.cta.href}
-                    className="inline-flex h-12 items-center justify-center rounded-xl bg-[#2166E8] px-6 text-sm font-bold text-white shadow-sm transition hover:bg-[#1554C7]"
+                    className="inline-flex h-11 items-center justify-center rounded-sm bg-[#2166E8] px-5 text-sm font-bold text-white shadow-sm transition hover:bg-[#1554C7]"
                   >
                     {slide.cta.label}
                   </Link>
                   <Link
                     href="/opportunities"
-                    className="inline-flex h-12 items-center justify-center rounded-xl border border-white/40 bg-white/10 px-6 text-sm font-bold text-white backdrop-blur-sm transition hover:bg-white/20"
+                    className="inline-flex h-11 items-center justify-center rounded-sm border border-white/40 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-sm transition hover:bg-white/20"
                   >
                     All Opportunities
                   </Link>
@@ -143,12 +143,12 @@ export default function HeroCarousel() {
         );
       })}
 
-      {/* PREVIOUS / NEXT (hidden on phones, where swiping works) */}
+      {/* PREVIOUS / NEXT (hidden on small phones, where swiping works) */}
       <button
         type="button"
         onClick={() => go(index - 1)}
         aria-label="Previous slide"
-        className="absolute left-3 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-white/30 md:flex lg:left-6"
+        className="absolute left-2 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-white/30 sm:flex"
       >
         <ChevronLeft size={22} />
       </button>
@@ -156,7 +156,7 @@ export default function HeroCarousel() {
         type="button"
         onClick={() => go(index + 1)}
         aria-label="Next slide"
-        className="absolute right-3 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-white/30 md:flex lg:right-6"
+        className="absolute right-2 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-white/30 sm:flex"
       >
         <ChevronRight size={22} />
       </button>

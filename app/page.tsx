@@ -4,15 +4,25 @@ import StatsCounter from "./component/home/StatsCounter";
 import Testimonials from "./component/home/Testimonials";
 import Faq from "./component/home/Faq";
 import HeroCarousel from "./component/home/HeroCarousel";
+import RecommendedScholarships from "./component/home/RecommendedScholarships";
+import WhatsAppPopup from "./component/home/WhatsAppPopup";
 
 export default function Home() {
-   return (
+  return (
     <main className="min-h-screen w-full overflow-x-hidden bg-white">
       {/* =====================================================
-          HERO CAROUSEL
+          HERO: carousel (left) + recommended scholarships (right)
       ===================================================== */}
-      <HeroCarousel />
-
+      <section className="border-b border-slate-200 bg-[#EEF2F8] py-5 sm:py-6">
+        <div className="mx-auto grid max-w-[1400px] gap-5 px-5 sm:px-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:px-10">
+          <div className="h-[440px] sm:h-[500px] lg:h-[540px]">
+            <HeroCarousel />
+          </div>
+          <div className="lg:h-[540px]">
+            <RecommendedScholarships />
+          </div>
+        </div>
+      </section>
 
       {/* =====================================================
           MOBILE NAVIGATION
@@ -48,6 +58,9 @@ export default function Home() {
 
       {/* FAQ */}
       <Faq />
+
+      {/* WhatsApp group invitation (appears a few seconds after the page opens) */}
+      <WhatsAppPopup />
     </main>
   );
 }

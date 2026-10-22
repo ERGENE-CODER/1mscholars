@@ -12,6 +12,7 @@ import {
   FaYoutube,
 } from "react-icons/fa6";
 import { ArrowRight, ArrowUp, TriangleAlert } from "lucide-react";
+import { SOCIAL_URLS } from "@/lib/site-links";
 
 /* =========================================================
    EDIT THE CONTENT HERE
@@ -23,16 +24,16 @@ const HIDDEN_PREFIXES = ["/admin"];
 const EMAIL = "1mscholarsltd@gmail.com";
 const PHONES = ["+250 781 841 929", "+250 782 774 986", "+250 789 422 004"];
 
-// TODO: check that these addresses are your real accounts, and put your WhatsApp *Channel*
-// link (https://whatsapp.com/channel/...) in WHATSAPP_CHANNEL.
+// The social addresses live in lib/site-links.ts. Put your WhatsApp *Channel* link
+// (https://whatsapp.com/channel/...) in WHATSAPP_CHANNEL.
 const SOCIALS = [
-  { label: "Facebook", href: "https://www.facebook.com/1MscholarsLtd", icon: FaFacebookF },
-  { label: "Instagram", href: "https://www.instagram.com/1MscholarsLtd", icon: FaInstagram },
-  { label: "Twitter", href: "https://www.twitter.com/1MscholarsLtd", icon: FaTwitter },
-  { label: "TikTok", href: "https://www.tiktok.com/@1MscholarsLtd", icon: FaTiktok },
-  { label: "LinkedIn", href: "https://www.linkedin.com/company/1mscholars", icon: FaLinkedinIn },
-  { label: "YouTube", href: "https://www.youtube.com/@1mscholarsltdservices", icon: FaYoutube },
-  { label: "WhatsApp", href: "https://wa.me/250781841929", icon: FaWhatsapp },
+  { label: "Facebook", href: SOCIAL_URLS.facebook, icon: FaFacebookF },
+  { label: "Instagram", href: SOCIAL_URLS.instagram, icon: FaInstagram },
+  { label: "Twitter", href: SOCIAL_URLS.twitter, icon: FaTwitter },
+  { label: "TikTok", href: SOCIAL_URLS.tiktok, icon: FaTiktok },
+  { label: "LinkedIn", href: SOCIAL_URLS.linkedin, icon: FaLinkedinIn },
+  { label: "YouTube", href: SOCIAL_URLS.youtube, icon: FaYoutube },
+  { label: "WhatsApp", href: SOCIAL_URLS.whatsapp, icon: FaWhatsapp },
 ];
 const WHATSAPP_CHANNEL = "https://wa.me/250781841929";
 

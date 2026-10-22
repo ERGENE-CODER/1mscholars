@@ -171,6 +171,47 @@ export async function fetchLatestOpportunities(limit = 6): Promise<Opportunity[]
   return ((data ?? []) as unknown as OpportunityQueryRow[]).map(mapOpportunity);
 }
 
+/** Today's date (YYYY-MM-DD) in Rwanda time. */
+export function todayKigali(): string {
+  return new Date().toLocaleDateString("en-CA", { timeZone: "Africa/Kigali" });
+}
+
+/** Whole days from today until the deadline (negative once it has passed); null when there is no deadline. */
+export function daysUntil(deadline: string | null): number | null {
+  if (!deadline) return null;
+  const [y, m, d] = deadline.split("-").map(Number);
+  const [ty, tm, td] = todayKigali().split("-").map(Number);
+  if (!y || !m || !d) return null;
+  return Math.round((Date.UTC(y, m - 1, d) - Date.UTC(ty, tm - 1, td)) / 86_400_000);
+}
+
+export type DeadlineFilter = "any" | "open" | "soon";
+
+/** Used by the opportunities filter: "open" = not expired, "soon" = closes within 30 days. */
+export function matchesDeadline(o: { deadline: string | null }, mode: DeadlineFilter): boolean {
+  if (mode === "any") return true;
+  const days = daysUntil(o.deadline);
+  if (mode === "open") return days === null || days >= 0;
+  return days !== null && days >= 0 && days <= 30;
+}
+
+/** Scholarships for the homepage side panel: featured first, then newest; expired ones are skipped when possible. */
+export async function fetchRecommendedScholarships(limit = 5): Promise<Opportunity[]> {
+  const { data, error } = await getSupabase()
+    .from("opportunities")
+    .select(OPPORTUNITY_SELECT)
+    .eq("status", "published")
+    .order("featured", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(60);
+  if (error) throw new Error(error.message);
+  const scholarships = ((data ?? []) as unknown as OpportunityQueryRow[])
+    .map(mapOpportunity)
+    .filter((o) => inCategory(o, "scholarships"));
+  const open = scholarships.filter((o) => matchesDeadline(o, "open"));
+  return (open.length ? open : scholarships).slice(0, limit);
+}
+
 /** Published opportunities that are still open: no deadline, or a deadline that hasn't passed. */
 export async function fetchActiveOpportunityCount(): Promise<number> {
   const today = new Date().toISOString().slice(0, 10);

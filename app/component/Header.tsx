@@ -58,7 +58,7 @@ export default function Header({
   const isContact = pathname.startsWith("/contact");
 
   return (
-    <header className="w-full border-b border-gray-200 bg-white">
+    <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white">
 
       <div
         className="

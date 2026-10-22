@@ -2,9 +2,19 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import OpportunityCard from "../component/OpportunityCard";
 import { EmptyState, ErrorState, OpportunityGridSkeleton } from "../component/StateViews";
-import { deriveCategories, fetchPublishedOpportunities, inCategory, prettifySlug, sameCategory } from "@/lib/opportunities";
+import OpportunityFilter from "./OpportunityFilter";
+import {
+  deriveCategories,
+  fetchPublishedOpportunities,
+  inCategory,
+  matchesDeadline,
+  prettifySlug,
+  sameCategory,
+  type DeadlineFilter,
+} from "@/lib/opportunities";
 import { useAsync } from "@/lib/useAsync";
 
 export default function OpportunityListing({ initialCategory }: { initialCategory?: string }) {
@@ -12,10 +22,16 @@ export default function OpportunityListing({ initialCategory }: { initialCategor
   const [sort, setSort] = useState("newest");
   const selected = initialCategory && initialCategory !== "all" ? initialCategory.toLowerCase() : "all";
 
+  // Filters chosen in the FILTER box live in the address bar (?country=…&deadline=…).
+  const params = useSearchParams();
+  const country = params.get("country")?.trim() || "all";
+  const rawDeadline = params.get("deadline");
+  const deadline: DeadlineFilter = rawDeadline === "open" || rawDeadline === "soon" ? rawDeadline : "any";
+
   const { data: opportunities, error, loading, retry } = useAsync(fetchPublishedOpportunities);
 
-  // Categories come from opportunity_programs; a category linked from the header that has no
-  // opportunities yet is still shown (and highlighted) so the page doesn't look broken.
+  // Categories come from opportunity_programs / the category column; a category linked from the
+  // header that has no opportunities yet is still shown (and highlighted).
   const categories = useMemo(() => {
     const list = deriveCategories(opportunities ?? []);
     if (selected !== "all" && !list.some((c) => sameCategory(c.name, selected))) {
@@ -24,14 +40,30 @@ export default function OpportunityListing({ initialCategory }: { initialCategor
     return list;
   }, [opportunities, selected]);
 
+  const countries = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const o of opportunities ?? []) {
+      const c = o.country?.trim();
+      if (c && !seen.has(c.toLowerCase())) seen.set(c.toLowerCase(), c);
+    }
+    if (country !== "all" && !seen.has(country.toLowerCase())) seen.set(country.toLowerCase(), country);
+    return [...seen.values()].sort((a, b) => a.localeCompare(b));
+  }, [opportunities, country]);
+
   const selectedName = categories.find((c) => sameCategory(c.name, selected))?.name ?? prettifySlug(selected);
+  const filtersActive = selected !== "all" || country !== "all" || deadline !== "any";
 
   const filtered = useMemo(() => {
-    const base = (opportunities ?? []).filter((item) => selected === "all" || inCategory(item, selected));
+    const base = (opportunities ?? []).filter(
+      (item) =>
+        (selected === "all" || inCategory(item, selected)) &&
+        (country === "all" || item.country?.trim().toLowerCase() === country.toLowerCase()) &&
+        matchesDeadline(item, deadline)
+    );
     const q = query.trim().toLowerCase();
     const searched = q ? base.filter((item) => `${item.title} ${item.description} ${item.organization}`.toLowerCase().includes(q)) : base;
     return [...searched].sort((a, b) => (sort === "az" ? a.title.localeCompare(b.title) : b.createdAt.localeCompare(a.createdAt)));
-  }, [opportunities, query, selected, sort]);
+  }, [opportunities, query, selected, sort, country, deadline]);
 
   const heading = selected === "all" ? "Find Your Next Opportunity" : `${selectedName} Opportunities`;
 
@@ -58,33 +90,57 @@ export default function OpportunityListing({ initialCategory }: { initialCategor
           })}
         </div>
 
-        <div className="mb-7 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 sm:flex-row">
-          <label className="flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-[#F8FAFD] px-4 py-3">
-            <span className="text-slate-400">⌕</span>
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search opportunities..." className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400" />
-          </label>
-          <select value={sort} onChange={(e) => setSort(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-[#102F59] outline-none">
-            <option value="newest">Newest First</option>
-            <option value="az">Title A–Z</option>
-          </select>
-        </div>
+        <div className="grid gap-6 lg:grid-cols-[270px_minmax(0,1fr)]">
+          {/* FILTER (left on large screens, above the list on small ones) */}
+          <div className="lg:sticky lg:top-[120px] lg:self-start">
+            <OpportunityFilter
+              key={`${selected}|${country}|${deadline}`}
+              categories={categories}
+              countries={countries}
+              type={selected}
+              country={country}
+              deadline={deadline}
+              active={filtersActive}
+            />
+          </div>
 
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-bold">{selected === "all" ? "All Opportunities" : selectedName}</h2>
-            {!loading && !error && <p className="mt-1 text-sm text-slate-500">{filtered.length} {filtered.length === 1 ? "opportunity" : "opportunities"} available</p>}
+          <div className="min-w-0">
+            <div className="mb-5 flex flex-col gap-3 border border-slate-300 bg-white p-3 sm:flex-row">
+              <label className="flex min-w-0 flex-1 items-center gap-3 bg-[#F8FAFD] px-4 py-2.5">
+                <span className="text-slate-400">⌕</span>
+                <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search opportunities..." className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400" />
+              </label>
+              <select value={sort} onChange={(e) => setSort(e.target.value)} className="border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-[#102F59] outline-none">
+                <option value="newest">Newest First</option>
+                <option value="az">Title A–Z</option>
+              </select>
+            </div>
+
+            <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-300 pb-2">
+              <h2 className="text-lg font-bold">{selected === "all" ? "All Opportunities" : selectedName}</h2>
+              {!loading && !error && <p className="text-sm text-slate-500">{filtered.length} {filtered.length === 1 ? "opportunity" : "opportunities"} found</p>}
+            </div>
+
+            {loading ? (
+              <OpportunityGridSkeleton />
+            ) : error ? (
+              <ErrorState title="We couldn't load opportunities" message={error.message} onRetry={retry} />
+            ) : filtered.length ? (
+              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{filtered.map((opportunity) => <OpportunityCard key={opportunity.id} opportunity={opportunity} />)}</div>
+            ) : (
+              <EmptyState>
+                {query.trim() || filtersActive ? (
+                  <>
+                    No opportunities match your search or filters.
+                    {filtersActive && <> <Link href="/opportunities" className="font-semibold text-[#2166E8] hover:underline">Reset filters</Link></>}
+                  </>
+                ) : (
+                  "No opportunities are available right now. Please check back soon."
+                )}
+              </EmptyState>
+            )}
           </div>
         </div>
-
-        {loading ? (
-          <OpportunityGridSkeleton />
-        ) : error ? (
-          <ErrorState title="We couldn't load opportunities" message={error.message} onRetry={retry} />
-        ) : filtered.length ? (
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map((opportunity) => <OpportunityCard key={opportunity.id} opportunity={opportunity} />)}</div>
-        ) : (
-          <EmptyState>{query.trim() ? "No opportunities match your search." : selected === "all" ? "No opportunities are available right now. Please check back soon." : `No ${selectedName.toLowerCase()} opportunities are available right now.`}</EmptyState>
-        )}
       </section>
     </main>
   );

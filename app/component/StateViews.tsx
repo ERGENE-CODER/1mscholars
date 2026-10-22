@@ -1,21 +1,21 @@
 import type { ReactNode } from "react";
 
 /** Placeholder cards that mirror the OpportunityCard layout while data loads. */
-export function OpportunityGridSkeleton({ count = 6 }: { count?: number }) {
+export function OpportunityGridSkeleton({ count = 6, className = "grid gap-5 sm:grid-cols-2 xl:grid-cols-3" }: { count?: number; className?: string }) {
   return (
-    <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3" role="status" aria-label="Loading opportunities">
+    <div className={className} role="status" aria-label="Loading opportunities">
       {Array.from({ length: count }, (_, i) => (
-        <div key={i} className="animate-pulse overflow-hidden rounded-2xl border border-slate-200 bg-white">
-          <div className="aspect-[16/9] bg-[#EEF5FF]" />
-          <div className="space-y-3 p-5">
-            <div className="h-3 w-1/2 rounded bg-slate-100" />
-            <div className="h-5 w-4/5 rounded bg-slate-100" />
-            <div className="h-3 w-full rounded bg-slate-100" />
-            <div className="h-3 w-2/3 rounded bg-slate-100" />
-            <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-4">
-              <div className="mr-auto h-8 w-20 rounded bg-slate-100" />
-              <div className="h-8 w-24 rounded-lg bg-slate-100" />
-              <div className="h-8 w-20 rounded-lg bg-slate-100" />
+        <div key={i} className="animate-pulse border border-slate-300 bg-white">
+          <div className="aspect-[3/2] border-b border-slate-300 bg-slate-100" />
+          <div className="space-y-3 p-4">
+            <div className="h-4 w-4/5 bg-slate-200" />
+            <div className="h-3 w-1/2 bg-slate-100" />
+            <div className="h-14 border-y border-slate-200 bg-slate-50" />
+            <div className="h-3 w-full bg-slate-100" />
+            <div className="h-3 w-2/3 bg-slate-100" />
+            <div className="flex gap-2 pt-2">
+              <div className="h-9 flex-1 bg-slate-200" />
+              <div className="h-9 flex-1 bg-slate-100" />
             </div>
           </div>
         </div>
