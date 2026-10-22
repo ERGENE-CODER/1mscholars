@@ -4,10 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ProfileMenu from "./ProfileMenu";
 
-// Rows in the Opportunities dropdown. The row for the page you're on is highlighted.
-const OPPORTUNITY_CATEGORIES = [
-  { href: "/opportunities/scholarships", label: "Scholarships", icon: "🎓" },
-  { href: "/opportunities/jobs", label: "Jobs", icon: "💼" },
+// Categories that sit directly on the navigation bar (plain links, no dropdown).
+const MAIN_CATEGORY_LINKS = [
+  { href: "/opportunities/scholarships", label: "Scholarships" },
+  { href: "/opportunities/jobs", label: "Jobs" },
+] as const;
+
+// Everything else lives in the Opportunities dropdown. The row for the page
+// you're on is highlighted. To move a category onto the bar (or back), move
+// its line between these two lists.
+const DROPDOWN_CATEGORIES = [
   { href: "/opportunities/internships", label: "Internships", icon: "👤" },
   { href: "/opportunities/fellowships", label: "Fellowships", icon: "👥" },
   { href: "/opportunities/training", label: "Training & Courses", icon: "📖" },
@@ -16,7 +22,7 @@ const OPPORTUNITY_CATEGORIES = [
 
 // Every top-level nav item uses the same size and weight; only colour changes.
 const NAV_ITEM_BASE =
-  "relative flex h-[94px] items-center gap-2 whitespace-nowrap px-1 text-[15px] font-semibold transition";
+  "relative flex h-[94px] items-center gap-2 whitespace-nowrap px-1 text-[14px] font-semibold transition xl:text-[15px]";
 
 function navItemClass(active: boolean) {
   return `${NAV_ITEM_BASE} ${
@@ -45,7 +51,9 @@ export default function Header({
   if (pathname.startsWith("/admin")) return null;                                  // ← added
 
   const isHome = pathname === "/";
-  const isOpportunities = pathname.startsWith("/opportunities");
+  const isOpportunities =
+    pathname.startsWith("/opportunities") &&
+    !MAIN_CATEGORY_LINKS.some((item) => item.href === pathname);
   const isAbout = pathname.startsWith("/about");
   const isContact = pathname.startsWith("/contact");
 
@@ -166,6 +174,23 @@ export default function Header({
           </Link>
 
 
+          {/* SCHOLARSHIPS + JOBS: plain links, no dropdown */}
+          {MAIN_CATEGORY_LINKS.map((item) => {
+            const active = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                className={navItemClass(active)}
+              >
+                {item.label}
+                <ActiveBar active={active} />
+              </Link>
+            );
+          })}
+
+
           {/* =================================================
     OPPORTUNITIES DROPDOWN
 ================================================= */}
@@ -204,7 +229,7 @@ export default function Header({
       left-1/2
       top-[94px]
       z-50
-      w-[680px]
+      w-[300px]
       -translate-x-1/2
       rounded-2xl
       border
@@ -222,14 +247,9 @@ export default function Header({
     "
   >
 
-                <div className="grid grid-cols-[250px_1fr] overflow-hidden rounded-xl">
+                <div className="space-y-1">
 
-                  {/* ==========================================
-            LEFT SIDE
-        ========================================== */}
-                  <div className="space-y-1">
-
-                    {OPPORTUNITY_CATEGORIES.map((item) => {
+                    {DROPDOWN_CATEGORIES.map((item) => {
                       const active = pathname === item.href;
                       return (
                         <Link
@@ -253,109 +273,12 @@ export default function Header({
                       );
                     })}
 
-                  </div>
-
-
-                  {/* ==========================================
-            RIGHT SIDE
-        ========================================== */}
-                  <div
-                    className="
-            ml-3
-            rounded-xl
-            bg-[#F8FAFD]
-            p-4
-          "
-                  >
-
-                    <img
-                      src="/hero.png"
-                      alt="Find opportunities"
-                      className="
-              h-[135px]
-              w-full
-              rounded-xl
-              object-cover
-            "
-                    />
-
-                    <h3
-                      className="
-              mt-4
-              text-[18px]
-              font-bold
-              leading-[23px]
-              text-[#12396B]
-            "
-                    >
-                      Find the right opportunity
-                      <br />
-                      for your future
-                    </h3>
-
-                    <p
-                      className="
-              mt-2
-              text-[13px]
-              leading-[20px]
-              text-gray-500
-            "
-                    >
-                      Explore scholarships, jobs,
-                      internships, trainings and more
-                      from trusted institutions.
-                    </p>
-
-                    <Link
-                      href="/opportunities"
-                      className="
-              mt-4
-              inline-flex
-              items-center
-              gap-2
-              text-[13px]
-              font-semibold
-              text-[#2166E8]
-              hover:underline
-            "
-                    >
-                      Browse All Opportunities
-
-                      <span className="text-[18px]">
-                        →
-                      </span>
-                    </Link>
-
-                  </div>
-
                 </div>
 
     </div>
 
           </div>
 
-          {/* scholarships
-          <Link
-            href="/scholarships"
-            className="
-                flex
-                items-center
-                gap-2
-                whitespace-nowrap
-                px-1
-                text-[15px]
-                font-semibold
-                text-[#102F59]
-                transition
-                hover:text-[#2166E8]
-              "
-          >
-            Scholarship
-
-            <span className="text-[11px]">
-              ⌄
-            </span>
-          </Link> */}
 
 
           {/* ABOUT */}

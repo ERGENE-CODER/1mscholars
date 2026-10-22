@@ -4,7 +4,6 @@ import { useCallback } from "react";
 import Link from "next/link";
 import OpportunityCard from "../component/OpportunityCard";
 import { EmptyState, ErrorState, PageSkeleton } from "../component/StateViews";
-import { fetchApplicationForm } from "@/lib/applications";
 import { fetchOpportunity, fetchRelatedOpportunities } from "@/lib/opportunities";
 import { useAsync } from "@/lib/useAsync";
 
@@ -12,12 +11,9 @@ export default function OpportunityDetail({ id }: { id: number }) {
   const load = useCallback(async () => {
     const opportunity = await fetchOpportunity(id);
     if (!opportunity) return null;
-    // The form and related items are secondary: if they fail, the page still renders.
-    const [form, related] = await Promise.all([
-      fetchApplicationForm(id).catch(() => null),
-      fetchRelatedOpportunities(opportunity).catch(() => []),
-    ]);
-    return { opportunity, form, related };
+    // Related items are secondary: if they fail, the page still renders.
+    const related = await fetchRelatedOpportunities(opportunity).catch(() => []);
+    return { opportunity, related };
   }, [id]);
 
   const { data, error, loading, retry } = useAsync(load);
@@ -49,10 +45,14 @@ export default function OpportunityDetail({ id }: { id: number }) {
     );
   }
 
-  const { opportunity, form, related } = data;
+  const { opportunity, related } = data;
   const isClosed = opportunity.status === "closed";
-  const assistanceHref = `/opportunities/assistance?opportunity=${opportunity.id}`;
-  const hasForm = Boolean(form && form.fields.length);
+  // The application form lives on this page.
+  const applyHref = `/opportunities/assistance?opportunity=${opportunity.id}`;
+  const hasMain =
+    Boolean(opportunity.description) ||
+    opportunity.requirements.length > 0 ||
+    opportunity.benefits.length > 0;
 
   return (
     <main className="min-h-screen bg-[#F8FAFD] pb-16 text-[#102F59]">
@@ -69,11 +69,10 @@ export default function OpportunityDetail({ id }: { id: number }) {
               <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {[['Country', opportunity.country || '—'], ['Organization', opportunity.organization], ['Deadline', opportunity.deadlineLabel], ['Status', isClosed ? 'Closed' : 'Open']].map(([label, value]) => <div key={label} className="rounded-xl bg-[#F8FAFD] p-3"><div className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{label}</div><div className="mt-1 text-xs font-bold text-[#102F59]">{value}</div></div>)}
               </div>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Link href={assistanceHref} className="inline-flex h-12 flex-1 items-center justify-center rounded-xl border border-[#BFD4F7] bg-[#F3F7FF] px-5 text-sm font-bold text-[#2166E8]">Ask for Assistance</Link>
+              <div className="mt-6">
                 {isClosed
-                  ? <span className="inline-flex h-12 flex-1 cursor-not-allowed items-center justify-center rounded-xl bg-slate-200 px-5 text-sm font-bold text-slate-500">Applications Closed</span>
-                  : <a href="#application" className="inline-flex h-12 flex-1 items-center justify-center rounded-xl bg-[#2166E8] px-5 text-sm font-bold text-white hover:bg-[#1554C7]">Apply Now</a>}
+                  ? <span className="flex h-12 w-full cursor-not-allowed items-center justify-center rounded-xl bg-slate-200 px-5 text-sm font-bold text-slate-500">Applications Closed</span>
+                  : <Link href={applyHref} className="flex h-12 w-full items-center justify-center rounded-xl bg-[#2166E8] px-5 text-sm font-bold text-white transition hover:bg-[#1554C7]">Apply Now</Link>}
               </div>
             </div>
           </div>
@@ -83,20 +82,11 @@ export default function OpportunityDetail({ id }: { id: number }) {
             {opportunity.description && <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8"><h2 className="text-lg font-bold">Description</h2><p className="mt-3 whitespace-pre-line text-sm leading-7 text-slate-600">{opportunity.description}</p></section>}
             {opportunity.requirements.length > 0 && <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8"><h2 className="text-lg font-bold">Eligibility Requirements</h2><ul className="mt-4 space-y-3">{opportunity.requirements.map((item, i) => <li key={`${i}-${item}`} className="flex gap-3 text-sm leading-6 text-slate-600"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#2166E8]" />{item}</li>)}</ul></section>}
             {opportunity.benefits.length > 0 && <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8"><h2 className="text-lg font-bold">Benefits / What You Get</h2><ul className="mt-4 grid gap-3 sm:grid-cols-2">{opportunity.benefits.map((item, i) => <li key={`${i}-${item}`} className="rounded-xl bg-[#F8FAFD] p-4 text-sm font-semibold text-slate-600">✓ {item}</li>)}</ul></section>}
-            <section id="application" className="rounded-2xl border border-[#CFE0FB] bg-[#EEF5FF] p-6 sm:p-8">
-              <h2 className="text-lg font-bold text-[#12396B]">{form?.title || "Application Information"}</h2>
-              {hasForm && form ? (
-                <>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{form.description || "Have your information ready. The application asks for the details below."}</p>
-                  <div className="mt-4 flex flex-wrap gap-2">{form.fields.map((field) => <span key={field.id} className="rounded-lg bg-white px-3 py-2 text-xs font-semibold text-[#102F59]">{field.label}</span>)}</div>
-                  {!isClosed && <Link href={assistanceHref} className="mt-5 inline-flex h-11 items-center rounded-xl bg-[#2166E8] px-5 text-sm font-bold text-white hover:bg-[#1554C7]">Start Application →</Link>}
-                </>
-              ) : (
-                <p className="mt-2 text-sm leading-6 text-slate-600">The application form for this opportunity isn&apos;t available yet. Please check back soon.</p>
-              )}
-            </section>
+            {!hasMain && <section className="rounded-2xl border border-slate-200 bg-white p-6 text-sm leading-7 text-slate-500 sm:p-8">More details about this opportunity will be added soon.</section>}
           </div>
-          <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:sticky lg:top-6"><div className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Application deadline</div><div className="mt-2 text-2xl font-bold text-[#102F59]">{opportunity.deadlineLabel}</div><div className="mt-4 h-px bg-slate-100" /><p className="mt-4 text-sm leading-6 text-slate-500">Deadlines and requirements are set by the organisation. Please confirm the details before you apply.</p><Link href={assistanceHref} className="mt-5 flex h-11 items-center justify-center rounded-xl bg-[#2166E8] text-sm font-bold text-white">Get Application Assistance</Link></aside>
+          <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:sticky lg:top-6"><div className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Application deadline</div><div className="mt-2 text-2xl font-bold text-[#102F59]">{opportunity.deadlineLabel}</div><div className="mt-4 h-px bg-slate-100" /><p className="mt-4 text-sm leading-6 text-slate-500">Deadlines and requirements are set by the organisation. Please confirm the details before you apply.</p>{isClosed
+            ? <span className="mt-5 flex h-11 cursor-not-allowed items-center justify-center rounded-xl bg-slate-200 text-sm font-bold text-slate-500">Applications Closed</span>
+            : <Link href={applyHref} className="mt-5 flex h-11 items-center justify-center rounded-xl bg-[#2166E8] text-sm font-bold text-white transition hover:bg-[#1554C7]">Apply Now</Link>}</aside>
         </div>
         {related.length > 0 && <section className="mt-12"><h2 className="text-2xl font-bold">Related Opportunities</h2><div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{related.map(item => <OpportunityCard key={item.id} opportunity={item} />)}</div></section>}
       </div>
