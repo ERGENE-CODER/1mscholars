@@ -3,11 +3,17 @@ import { createClient } from "@/lib/supabase/server";
 
 export type Db = Awaited<ReturnType<typeof createClient>>;
 
+export type AdminRole = "admin" | "sub_admin";
+
+/** "admin" = full administrator. "sub_admin" = limited administrator (see requireFullAdmin). */
+export const isAdminRole = (role: unknown): role is AdminRole => role === "admin" || role === "sub_admin";
+
 /**
  * Every admin page AND every admin Server Action calls this. Server Actions are
  * public HTTP endpoints, so the layout's check alone is not enough.
+ * Both full and limited admins pass; `isFull` says which one this is.
  */
-export async function requireAdmin(): Promise<{ supabase: Db; userId: string }> {
+export async function requireAdmin(): Promise<{ supabase: Db; userId: string; role: AdminRole; isFull: boolean }> {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   if (!data?.claims) redirect("/login?mode=login");
@@ -17,9 +23,20 @@ export async function requireAdmin(): Promise<{ supabase: Db; userId: string }> 
     .select("role")
     .eq("id", data.claims.sub)
     .maybeSingle();
-  if (profile?.role !== "admin") redirect("/");
+  if (!isAdminRole(profile?.role)) redirect("/");
 
-  return { supabase, userId: data.claims.sub as string };
+  const role = profile?.role as AdminRole;
+  return { supabase, userId: data.claims.sub as string, role, isFull: role === "admin" };
+}
+
+/**
+ * For things a limited admin must never do: add/remove admins, change roles, delete users.
+ * Sends them back to `backPath` with a message instead of doing it.
+ */
+export async function requireFullAdmin(backPath = "/admin") {
+  const ctx = await requireAdmin();
+  if (!ctx.isFull) backTo(backPath, "error", "Only a full administrator can do that.");
+  return ctx;
 }
 
 type PgError = { code?: string; message?: string } | null | undefined;
