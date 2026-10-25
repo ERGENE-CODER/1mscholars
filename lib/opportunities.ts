@@ -16,6 +16,7 @@ type OpportunityRow = {
   status: OpportunityStatus;
   featured: boolean;
   category: string | null;
+  study_level: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -46,6 +47,8 @@ export type Opportunity = {
   image: string;
   status: OpportunityStatus;
   featured: boolean;
+  /** "undergraduate" | "graduate" | "both" | null (scholarships) */
+  studyLevel: string | null;
   createdAt: string;
   /** Program names from opportunity_programs, in position order. The first one is the primary category. */
   programs: string[];
@@ -134,6 +137,7 @@ function mapOpportunity(row: OpportunityQueryRow): Opportunity {
     image: row.image_url || FALLBACK_IMAGE,
     status: row.status,
     featured: row.featured,
+    studyLevel: row.study_level ?? null,
     createdAt: row.created_at,
     // The category column (set in the admin panel) comes first so it is the primary category;
     // program names are kept after it. Duplicates (ignoring case / plural "s") are dropped.
@@ -193,6 +197,14 @@ export function matchesDeadline(o: { deadline: string | null }, mode: DeadlineFi
   const days = daysUntil(o.deadline);
   if (mode === "open") return days === null || days >= 0;
   return days !== null && days >= 0 && days <= 30;
+}
+
+export type LevelFilter = "any" | "undergraduate" | "graduate";
+
+/** "undergraduate"/"graduate" match those scholarships plus ones open to both. */
+export function matchesLevel(o: { studyLevel: string | null }, mode: LevelFilter): boolean {
+  if (mode === "any") return true;
+  return o.studyLevel === mode || o.studyLevel === "both";
 }
 
 /** Scholarships for the homepage side panel: featured first, then newest; expired ones are skipped when possible. */

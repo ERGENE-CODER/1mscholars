@@ -76,7 +76,7 @@ export default function HeroCarousel() {
       role="region"
       aria-roledescription="carousel"
       aria-label="Featured opportunities"
-      className="relative h-full min-h-[420px] w-full overflow-hidden bg-[#0A1F44]"
+      className="relative isolate h-full min-h-[420px] w-full overflow-hidden rounded-2xl bg-[#0A1F44]"
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       onFocus={() => setHovering(true)}

@@ -9,6 +9,7 @@ import {
   CATEGORY_SUGGESTIONS,
   OPPORTUNITY_STATUSES,
   STATUS_LABELS,
+  STUDY_LEVELS,
   type OpportunityFormValues,
   type SaveState,
 } from "@/lib/admin-opportunities";
@@ -18,6 +19,7 @@ export const EMPTY_OPPORTUNITY: OpportunityFormValues = {
   organization: "",
   category: "",
   country: "",
+  study_level: "",
   location: "",
   deadline: "",
   image_url: "",
@@ -76,6 +78,14 @@ export default function OpportunityForm({
                 <option key={c} value={c} />
               ))}
             </datalist>
+          </Field>
+          <Field label="Study level" hint="For scholarships: who can apply. Students can filter by this.">
+            <select name="study_level" defaultValue={v.study_level} className={inputClass}>
+              <option value="">Not specified</option>
+              {STUDY_LEVELS.map((l) => (
+                <option key={l.value} value={l.value}>{l.label}</option>
+              ))}
+            </select>
           </Field>
           <Field label="Country">
             <input name="country" defaultValue={v.country} className={inputClass} placeholder="e.g. Rwanda" />

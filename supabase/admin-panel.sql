@@ -153,3 +153,11 @@ create policy "Admin panel: update profiles" on public.profiles
 
 -- Deleting users is done with the service-role key from the server, and the app
 -- only allows it for full admins.
+
+
+-- =============================================================================
+-- STUDY LEVEL for scholarships (Undergraduate / Graduate filter) -- run once
+-- =============================================================================
+alter table public.opportunities
+  add column if not exists study_level text
+  check (study_level is null or study_level in ('undergraduate', 'graduate', 'both'));

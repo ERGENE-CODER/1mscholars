@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import type { Category, DeadlineFilter } from "@/lib/opportunities";
+import { sameCategory, type Category, type DeadlineFilter, type LevelFilter } from "@/lib/opportunities";
 
 const selectClass =
   "h-10 w-full border border-slate-400 bg-slate-100 px-3 text-[14px] text-slate-800 outline-none focus:border-[#2166E8] focus:bg-white";
@@ -12,6 +12,12 @@ const DEADLINE_OPTIONS: { value: DeadlineFilter; label: string }[] = [
   { value: "any", label: "Any deadline" },
   { value: "open", label: "Still open" },
   { value: "soon", label: "Closing within 30 days" },
+];
+
+const LEVEL_OPTIONS: { value: LevelFilter; label: string }[] = [
+  { value: "any", label: "All levels" },
+  { value: "undergraduate", label: "Undergraduate" },
+  { value: "graduate", label: "Graduate" },
 ];
 
 /**
@@ -24,6 +30,7 @@ export default function OpportunityFilter({
   type,
   country,
   deadline,
+  level,
   active,
 }: {
   categories: Category[];
@@ -31,18 +38,23 @@ export default function OpportunityFilter({
   type: string; // category slug or "all"
   country: string; // "all" or a country name
   deadline: DeadlineFilter;
+  level: LevelFilter;
   active: boolean; // any filter currently applied
 }) {
   const router = useRouter();
   const [typeValue, setTypeValue] = useState(type);
   const [countryValue, setCountryValue] = useState(country);
   const [deadlineValue, setDeadlineValue] = useState<DeadlineFilter>(deadline);
+  const [levelValue, setLevelValue] = useState<LevelFilter>(level);
+  // The level drop-down only applies to scholarships.
+  const showLevel = sameCategory(typeValue, "scholarships");
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const params = new URLSearchParams();
     if (countryValue !== "all") params.set("country", countryValue);
     if (deadlineValue !== "any") params.set("deadline", deadlineValue);
+    if (showLevel && levelValue !== "any") params.set("level", levelValue);
     const qs = params.toString();
     const path = typeValue === "all" ? "/opportunities" : `/opportunities/${typeValue}`;
     router.push(qs ? `${path}?${qs}` : path);
@@ -67,6 +79,19 @@ export default function OpportunityFilter({
             ))}
           </select>
         </label>
+
+        {showLevel && (
+          <label className="block">
+            <span className="mb-1 block text-[12px] font-semibold text-slate-600">Level of study</span>
+            <select value={levelValue} onChange={(e) => setLevelValue(e.target.value as LevelFilter)} className={selectClass}>
+              {LEVEL_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
 
         <label className="block">
           <span className="mb-1 block text-[12px] font-semibold text-slate-600">Country</span>

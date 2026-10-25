@@ -19,12 +19,21 @@ export const CATEGORY_SUGGESTIONS = [
   "Competitions",
 ];
 
+/** Study level for scholarships (stored in opportunities.study_level). */
+export const STUDY_LEVELS = [
+  { value: "undergraduate", label: "Undergraduate" },
+  { value: "graduate", label: "Graduate" },
+  { value: "both", label: "Undergraduate & Graduate" },
+] as const;
+export type StudyLevelValue = (typeof STUDY_LEVELS)[number]["value"];
+
 export type OpportunityFormValues = {
   id?: number;
   title: string;
   organization: string;
   category: string;
   country: string;
+  study_level: string; // "" or a StudyLevelValue
   location: string;
   deadline: string; // YYYY-MM-DD or ""
   image_url: string;

@@ -13,8 +13,8 @@ export const metadata = { title: "Edit Opportunity | Admin" };
 
 type Row = {
   id: number; title: string; organization: string; category: string | null; country: string | null;
-  location: string | null; deadline: string | null; image_url: string | null; status: OpportunityStatusValue;
-  featured: boolean; description: string | null;
+  location: string | null; study_level: string | null; deadline: string | null; image_url: string | null; status: OpportunityStatusValue;
+  featured: boolean; description: string | null; created_by: string | null;
   opportunity_programs: { program_name: string; position: number; id: number }[] | null;
   opportunity_requirements: { requirement: string; position: number; id: number }[] | null;
   opportunity_benefits: { benefit: string; position: number; id: number }[] | null;
@@ -34,7 +34,7 @@ export default async function EditOpportunityPage({
   const id = toId(key);
   if (!id) notFound();
 
-  const { supabase } = await requireAdmin();
+  const { supabase, userId, isFull } = await requireAdmin();
   const { data, error } = await supabase
     .from("opportunities")
     .select("*, opportunity_programs(id, program_name, position), opportunity_requirements(id, requirement, position), opportunity_benefits(id, benefit, position)")
@@ -54,6 +54,7 @@ export default async function EditOpportunityPage({
     organization: row.organization,
     category: row.category ?? "",
     country: row.country ?? "",
+    study_level: row.study_level ?? "",
     location: row.location ?? "",
     deadline: row.deadline ?? "",
     image_url: row.image_url ?? "",
@@ -83,6 +84,7 @@ export default async function EditOpportunityPage({
       <Notice notice={sp.notice} error={sp.error} />
       <OpportunityForm initial={initial} categories={categories} />
 
+      {(isFull || row.created_by === userId) && (
       <Card className="border-red-200">
         <h2 className="text-base font-bold text-red-700">Delete this opportunity</h2>
         <p className="mt-1 text-sm text-slate-500">Removes it together with its requirements, benefits and application form. If students have already applied, it can&apos;t be deleted: close it instead.</p>
@@ -92,6 +94,7 @@ export default async function EditOpportunityPage({
           <ConfirmButton message={`Delete "${row.title}"? This can't be undone.`} pendingLabel="Deleting…">Delete opportunity</ConfirmButton>
         </form>
       </Card>
+      )}
     </div>
   );
 }

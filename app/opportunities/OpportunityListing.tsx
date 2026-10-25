@@ -11,9 +11,11 @@ import {
   fetchPublishedOpportunities,
   inCategory,
   matchesDeadline,
+  matchesLevel,
   prettifySlug,
   sameCategory,
   type DeadlineFilter,
+  type LevelFilter,
 } from "@/lib/opportunities";
 import { useAsync } from "@/lib/useAsync";
 
@@ -27,6 +29,9 @@ export default function OpportunityListing({ initialCategory }: { initialCategor
   const country = params.get("country")?.trim() || "all";
   const rawDeadline = params.get("deadline");
   const deadline: DeadlineFilter = rawDeadline === "open" || rawDeadline === "soon" ? rawDeadline : "any";
+
+  const rawLevel = params.get("level");
+  const level: LevelFilter = rawLevel === "undergraduate" || rawLevel === "graduate" ? rawLevel : "any";
 
   const { data: opportunities, error, loading, retry } = useAsync(fetchPublishedOpportunities);
 
@@ -51,19 +56,20 @@ export default function OpportunityListing({ initialCategory }: { initialCategor
   }, [opportunities, country]);
 
   const selectedName = categories.find((c) => sameCategory(c.name, selected))?.name ?? prettifySlug(selected);
-  const filtersActive = selected !== "all" || country !== "all" || deadline !== "any";
+  const filtersActive = selected !== "all" || country !== "all" || deadline !== "any" || level !== "any";
 
   const filtered = useMemo(() => {
     const base = (opportunities ?? []).filter(
       (item) =>
         (selected === "all" || inCategory(item, selected)) &&
         (country === "all" || item.country?.trim().toLowerCase() === country.toLowerCase()) &&
-        matchesDeadline(item, deadline)
+        matchesDeadline(item, deadline) &&
+        matchesLevel(item, level)
     );
     const q = query.trim().toLowerCase();
     const searched = q ? base.filter((item) => `${item.title} ${item.description} ${item.organization}`.toLowerCase().includes(q)) : base;
     return [...searched].sort((a, b) => (sort === "az" ? a.title.localeCompare(b.title) : b.createdAt.localeCompare(a.createdAt)));
-  }, [opportunities, query, selected, sort, country, deadline]);
+  }, [opportunities, query, selected, sort, country, deadline, level]);
 
   const heading = selected === "all" ? "Find Your Next Opportunity" : `${selectedName} Opportunities`;
 
@@ -94,12 +100,13 @@ export default function OpportunityListing({ initialCategory }: { initialCategor
           {/* FILTER (left on large screens, above the list on small ones) */}
           <div className="lg:sticky lg:top-[120px] lg:self-start">
             <OpportunityFilter
-              key={`${selected}|${country}|${deadline}`}
+              key={`${selected}|${country}|${deadline}|${level}`}
               categories={categories}
               countries={countries}
               type={selected}
               country={country}
               deadline={deadline}
+              level={level}
               active={filtersActive}
             />
           </div>

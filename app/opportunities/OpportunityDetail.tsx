@@ -56,23 +56,23 @@ export default function OpportunityDetail({ id }: { id: number }) {
 
   return (
     <main className="min-h-screen bg-[#F8FAFD] pb-16 text-[#102F59]">
-      <div className="mx-auto max-w-[1100px] px-5 pt-6 sm:px-8">
-        <div className="mb-5 flex flex-wrap items-center gap-2 text-xs text-slate-400"><Link href="/opportunities" className="hover:text-[#2166E8]">Opportunities</Link>{opportunity.programs[0] && <><span>/</span><span>{opportunity.programs[0]}</span></>}<span>/</span><span className="text-slate-600">{opportunity.title}</span></div>
+      <div className="mx-auto max-w-[1100px] px-5 pt-4 sm:px-8">
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-slate-400"><Link href="/opportunities" className="hover:text-[#2166E8]">Opportunities</Link>{opportunity.programs[0] && <><span>/</span><span>{opportunity.programs[0]}</span></>}<span>/</span><span className="text-slate-600">{opportunity.title}</span></div>
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_40px_rgba(15,45,90,0.07)]">
-          <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
-            <div className="min-h-[280px] bg-[#EEF5FF]"><img src={opportunity.image} alt="" className="h-full min-h-[280px] w-full object-cover" /></div>
-            <div className="p-6 sm:p-8">
+          <div className="grid lg:h-[clamp(320px,calc(100vh-170px),420px)] lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="relative h-44 bg-[#EEF5FF] sm:h-56 lg:h-auto"><img src={opportunity.image} alt="" className="absolute inset-0 h-full w-full object-cover" /></div>
+            <div className="flex min-h-0 flex-col justify-center p-5 sm:p-6 lg:overflow-y-auto">
               <div className="flex flex-wrap gap-2">{opportunity.programs.map((program) => <span key={program} className="rounded-full bg-[#EEF5FF] px-3 py-1 text-[11px] font-bold text-[#2166E8]">{program}</span>)}{opportunity.featured && <span className="rounded-full bg-[#E9F8EF] px-3 py-1 text-[11px] font-bold text-emerald-700">Featured</span>}</div>
-              <h1 className="mt-4 text-3xl font-bold leading-tight text-[#102F59]">{opportunity.title}</h1>
-              <p className="mt-3 text-sm font-semibold text-[#2166E8]">{opportunity.organization}</p>
+              <h1 className="mt-3 text-2xl font-bold leading-tight text-[#102F59] sm:text-[26px]">{opportunity.title}</h1>
+              <p className="mt-2 text-sm font-semibold text-[#2166E8]">{opportunity.organization}</p>
               {opportunity.location && <p className="mt-1 text-sm text-slate-500">{opportunity.location}</p>}
-              <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {[['Country', opportunity.country || '—'], ['Organization', opportunity.organization], ['Deadline', opportunity.deadlineLabel], ['Status', isClosed ? 'Closed' : 'Open']].map(([label, value]) => <div key={label} className="rounded-xl bg-[#F8FAFD] p-3"><div className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{label}</div><div className="mt-1 text-xs font-bold text-[#102F59]">{value}</div></div>)}
+              <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {[['Country', opportunity.country || '—'], ['Organization', opportunity.organization], ['Deadline', opportunity.deadlineLabel], ['Status', isClosed ? 'Closed' : 'Open']].map(([label, value]) => <div key={label} className="rounded-xl bg-[#F8FAFD] p-2.5"><div className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{label}</div><div className="mt-1 text-xs font-bold text-[#102F59]">{value}</div></div>)}
               </div>
-              <div className="mt-6">
+              <div className="mt-4">
                 {isClosed
-                  ? <span className="flex h-12 w-full cursor-not-allowed items-center justify-center rounded-xl bg-slate-200 px-5 text-sm font-bold text-slate-500">Applications Closed</span>
-                  : <Link href={applyHref} className="flex h-12 w-full items-center justify-center rounded-xl bg-[#2166E8] px-5 text-sm font-bold text-white transition hover:bg-[#1554C7]">Apply Now</Link>}
+                  ? <span className="flex h-11 w-full cursor-not-allowed items-center justify-center rounded-xl bg-slate-200 px-5 text-sm font-bold text-slate-500">Applications Closed</span>
+                  : <Link href={applyHref} className="flex h-11 w-full items-center justify-center rounded-xl bg-[#2166E8] px-5 text-sm font-bold text-white transition hover:bg-[#1554C7]">Apply Now</Link>}
               </div>
             </div>
           </div>

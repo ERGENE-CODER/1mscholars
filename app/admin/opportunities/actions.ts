@@ -2,9 +2,18 @@
 
 import { revalidatePath } from "next/cache";
 import { adminPath, backTo, friendlyError, requireAdmin, toId, type Db } from "@/lib/admin";
+
+const NOT_OWNER = "You can only delete opportunities and forms you published yourself. Ask a full administrator.";
+
+/** Limited admins may only delete things they created. Full admins may delete anything. */
+async function ownsOpportunity(supabase: Db, userId: string, opportunityId: number): Promise<boolean> {
+  const { data } = await supabase.from("opportunities").select("created_by").eq("id", opportunityId).maybeSingle();
+  return !!data && data.created_by === userId;
+}
 import {
   FIELD_TYPES,
   OPPORTUNITY_STATUSES,
+  STUDY_LEVELS,
   type BuilderPayload,
   type BuilderState,
   type OpportunityFormValues,
@@ -36,6 +45,7 @@ function readValues(fd: FormData): OpportunityFormValues {
     organization: text(fd, "organization"),
     category: text(fd, "category"),
     country: text(fd, "country"),
+    study_level: text(fd, "study_level"),
     location: text(fd, "location"),
     deadline: text(fd, "deadline"),
     image_url: text(fd, "image_url"),
@@ -101,6 +111,7 @@ export async function saveOpportunity(_prev: SaveState, formData: FormData): Pro
     category: values.category || null,
     description: values.description || null,
     country: values.country || null,
+    study_level: STUDY_LEVELS.some((l) => l.value === values.study_level) ? values.study_level : null,
     location: values.location || null,
     deadline: values.deadline || null,
     image_url: values.image_url || null,
@@ -188,10 +199,11 @@ export async function toggleFeatured(formData: FormData) {
  * Refuses if students have already applied: deleting would erase their applications.
  */
 export async function deleteOpportunity(formData: FormData) {
-  const { supabase } = await requireAdmin();
+  const { supabase, userId, isFull } = await requireAdmin();
   const id = toId(formData.get("id"));
   const returnTo = adminPath(formData.get("returnTo"), LIST);
   if (!id) backTo(returnTo, "error", "That request wasn't valid.");
+  if (!isFull && !(await ownsOpportunity(supabase, userId, id))) backTo(returnTo, "error", NOT_OWNER);
 
   const { count, error: countError } = await supabase
     .from("applications")
@@ -341,11 +353,12 @@ export async function saveApplicationForm(_prev: BuilderState, formData: FormDat
 }
 
 export async function deleteApplicationForm(formData: FormData) {
-  const { supabase } = await requireAdmin();
+  const { supabase, userId, isFull } = await requireAdmin();
   const formId = toId(formData.get("formId"));
   const opportunityId = toId(formData.get("opportunityId"));
   if (!formId || !opportunityId) backTo(LIST, "error", "That request wasn't valid.");
   const page = `${LIST}/${opportunityId}/form`;
+  if (!isFull && !(await ownsOpportunity(supabase, userId, opportunityId))) backTo(page, "error", NOT_OWNER);
 
   const { count, error: countError } = await supabase
     .from("applications")
