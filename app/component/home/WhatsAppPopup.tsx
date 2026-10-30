@@ -7,7 +7,7 @@ import { WHATSAPP_GROUP_URL } from "@/lib/site-links";
 
 const STORAGE_KEY = "1ms-whatsapp-popup";
 const SHOW_AFTER_MS = 5000; // wait 5 seconds before showing
-const HIDE_FOR_DAYS = 7; // after a visitor closes it, don't show again for a week
+const HIDE_FOR_DAYS = 0; // after a visitor closes it, don't show again for a week
 
 function recentlyDismissed(): boolean {
   try {

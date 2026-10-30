@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Menu, X } from "lucide-react";
 import ProfileMenu from "./ProfileMenu";
 
 // Categories that sit directly on the navigation bar (plain links, no dropdown).
@@ -30,6 +32,12 @@ function navItemClass(active: boolean) {
   }`;
 }
 
+function mobileLinkClass(active: boolean) {
+  return `block border-b border-slate-100 py-3 text-[15px] font-semibold ${
+    active ? "text-[#2166E8]" : "text-[#102F59] hover:text-[#2166E8]"
+  }`;
+}
+
 /** Blue underline under the page you're on. */
 function ActiveBar({ active }: { active: boolean }) {
   if (!active) return null;
@@ -46,6 +54,19 @@ export default function Header({
   user?: { name: string | null; email: string | null } | null;
 }) {
   const pathname = usePathname() ?? "/";
+
+  // Mobile menu. It remembers WHICH page it was opened on, so it closes by itself
+  // as soon as a link is followed (the path changes).
+  const [openFor, setOpenFor] = useState<string | null>(null);
+  const menuOpen = openFor === pathname;
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenFor(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
 
   // The admin panel has its own top bar, so don't show the public header there.   // ← added
   if (pathname.startsWith("/admin")) return null;                                  // ← added
@@ -64,7 +85,8 @@ export default function Header({
         className="
             mx-auto
             flex
-            h-[94px]
+            h-[72px]
+            lg:h-[94px]
             w-full
             max-w-[1600px]
             items-center
@@ -80,15 +102,17 @@ export default function Header({
           ================================================= */}
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-4"
+          className="flex min-w-0 shrink-0 items-center gap-3 sm:gap-4"
         >
 
           {/* LOGO */}
           <div
             className="
                 flex
-                h-[72px]
-                w-[72px]
+                h-[52px]
+                w-[52px]
+                sm:h-[72px]
+                sm:w-[72px]
                 shrink-0
                 items-center
                 justify-center
@@ -109,7 +133,8 @@ export default function Header({
             <span
               className="
                   whitespace-nowrap
-                  text-[24px]
+                  text-[20px]
+                  sm:text-[24px]
                   font-bold
                   leading-[29px]
                   tracking-[-0.5px]
@@ -122,6 +147,8 @@ export default function Header({
             <span
               className="
                   mt-1
+                  hidden
+                  sm:block
                   whitespace-nowrap
                   text-[13px]
                   font-medium
@@ -147,11 +174,23 @@ export default function Header({
           ) : (
             <Link
               href="/login?mode=signup"
-              className="flex h-[40px] items-center justify-center rounded-xl bg-[#2166E8] px-4 text-[13px] font-semibold whitespace-nowrap text-white shadow-sm transition hover:bg-[#1554C7]"
+              className="hidden h-[40px] items-center justify-center rounded-xl bg-[#2166E8] px-4 text-[13px] font-semibold whitespace-nowrap text-white shadow-sm transition hover:bg-[#1554C7] sm:flex"
             >
               Get Started
             </Link>
           )}
+
+          {/* MENU TOGGLE */}
+          <button
+            type="button"
+            onClick={() => setOpenFor(menuOpen ? null : pathname)}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            className="flex h-[40px] w-[40px] items-center justify-center rounded-lg border border-slate-300 text-[#12396B] transition hover:bg-slate-50"
+          >
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
 
         {/* =================================================
@@ -361,6 +400,80 @@ export default function Header({
         </div>
 
       </div>
+
+      {/* =================================================
+            MOBILE MENU (below lg). Opens under the header bar.
+        ================================================= */}
+      {menuOpen && (
+        <nav
+          id="mobile-menu"
+          aria-label="Mobile"
+          className="absolute inset-x-0 top-full max-h-[calc(100vh-72px)] overflow-y-auto border-b border-gray-200 bg-white shadow-[0_18px_30px_rgba(15,45,90,0.15)] lg:hidden"
+        >
+          <ul className="mx-auto max-w-[1600px] px-6 py-2 sm:px-8">
+            <li>
+              <Link href="/" aria-current={isHome ? "page" : undefined} className={mobileLinkClass(isHome)}>
+                Home
+              </Link>
+            </li>
+            {MAIN_CATEGORY_LINKS.map((item) => {
+              const active = pathname === item.href;
+              return (
+                <li key={item.href}>
+                  <Link href={item.href} aria-current={active ? "page" : undefined} className={mobileLinkClass(active)}>
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
+            <li>
+              <Link href="/opportunities" aria-current={isOpportunities ? "page" : undefined} className={mobileLinkClass(isOpportunities)}>
+                All Opportunities
+              </Link>
+              <ul className="mb-2 ml-1 border-l-2 border-slate-200 pl-3">
+                {DROPDOWN_CATEGORIES.map((item) => {
+                  const active = pathname === item.href;
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        aria-current={active ? "page" : undefined}
+                        className={`flex items-center gap-3 py-2.5 text-[14px] font-semibold ${active ? "text-[#2166E8]" : "text-[#102F59] hover:text-[#2166E8]"}`}
+                      >
+                        <span aria-hidden="true">{item.icon}</span>
+                        {item.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </li>
+            <li>
+              <Link href="/about" aria-current={isAbout ? "page" : undefined} className={mobileLinkClass(isAbout)}>
+                About us
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" aria-current={isContact ? "page" : undefined} className={mobileLinkClass(isContact)}>
+                Contact
+              </Link>
+            </li>
+          </ul>
+
+          <div className="mx-auto flex max-w-[1600px] flex-col gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 sm:px-8">
+            {isAdmin && (
+              <Link href="/admin" className="flex h-[44px] items-center justify-center rounded-xl bg-[#12396B] text-[14px] font-semibold text-white">
+                Admin Portal
+              </Link>
+            )}
+            {!user && (
+              <Link href="/login?mode=signup" className="flex h-[44px] items-center justify-center rounded-xl bg-[#2166E8] text-[14px] font-semibold text-white">
+                Get Started
+              </Link>
+            )}
+          </div>
+        </nav>
+      )}
 
     </header>
   );

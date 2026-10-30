@@ -8,7 +8,7 @@ import { daysUntil, type Opportunity } from "@/lib/opportunities";
  * and a small label/value table (Country, Deadline) above the summary.
  */
 export default function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
-  const category = opportunity.programs[0];
+  const category = opportunity.category;
   const href = `/opportunities/${opportunity.slug}`;
   const closed = opportunity.status === "closed";
   const days = daysUntil(opportunity.deadline);

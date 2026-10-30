@@ -50,15 +50,15 @@ export type Opportunity = {
   /** "undergraduate" | "graduate" | "both" | null (scholarships) */
   studyLevel: string | null;
   createdAt: string;
-  /** Program names from opportunity_programs, in position order. The first one is the primary category. */
+  /** The opportunity's category (scholarship, job, internship…) from opportunities.category. Used for filters and menus. */
+  category: string | null;
+  /** Program names from opportunity_programs, in position order (e.g. the degrees a scholarship covers). NOT used as categories. */
   programs: string[];
   requirements: string[];
   benefits: string[];
 };
 
 export type Category = { slug: string; name: string };
-
-const FALLBACK_IMAGE = "/hero.png";
 
 const OPPORTUNITY_SELECT =
   "*, opportunity_programs(id, program_name, position), opportunity_requirements(id, requirement, position), opportunity_benefits(id, benefit, position)";
@@ -108,20 +108,6 @@ export function formatDeadline(date: string | null) {
 
 const byPosition = <T extends { position: number; id: number }>(a: T, b: T) => a.position - b.position || a.id - b.id;
 
-function uniqueCategories(names: (string | null | undefined)[]): string[] {
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const raw of names) {
-    const name = raw?.trim();
-    if (!name) continue;
-    const key = categoryKey(name);
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(name);
-  }
-  return out;
-}
-
 function mapOpportunity(row: OpportunityQueryRow): Opportunity {
   const location = [row.location, row.country].filter((v, i, arr): v is string => Boolean(v) && arr.indexOf(v) === i).join(", ");
   return {
@@ -134,17 +120,13 @@ function mapOpportunity(row: OpportunityQueryRow): Opportunity {
     location,
     deadline: row.deadline,
     deadlineLabel: formatDeadline(row.deadline),
-    image: row.image_url || FALLBACK_IMAGE,
+    image: row.image_url?.trim() || "", // empty → the UI shows a neutral placeholder
     status: row.status,
     featured: row.featured,
     studyLevel: row.study_level ?? null,
     createdAt: row.created_at,
-    // The category column (set in the admin panel) comes first so it is the primary category;
-    // program names are kept after it. Duplicates (ignoring case / plural "s") are dropped.
-    programs: uniqueCategories([
-      row.category,
-      ...(row.opportunity_programs ?? []).slice().sort(byPosition).map((p) => p.program_name),
-    ]),
+    category: row.category?.trim() || null,
+    programs: (row.opportunity_programs ?? []).slice().sort(byPosition).map((p) => p.program_name),
     requirements: (row.opportunity_requirements ?? []).slice().sort(byPosition).map((r) => r.requirement),
     benefits: (row.opportunity_benefits ?? []).slice().sort(byPosition).map((b) => b.benefit),
   };
@@ -258,23 +240,22 @@ export async function fetchRelatedOpportunities(current: Opportunity, limit = 3)
     .order("created_at", { ascending: false })
     .limit(30);
   if (error) throw new Error(error.message);
-  const keys = new Set(current.programs.map(categoryKey));
-  const shares = (o: Opportunity) => o.programs.some((p) => keys.has(categoryKey(p)));
+  const shares = (o: Opportunity) => Boolean(current.category && o.category && sameCategory(o.category, current.category));
   const all = ((data ?? []) as unknown as OpportunityQueryRow[]).map(mapOpportunity);
   return [...all.filter(shares), ...all.filter((o) => !shares(o))].slice(0, limit);
 }
 
-/* ---------- Categories (derived from opportunity_programs) ---------- */
+/* ---------- Categories (from the opportunities.category column only) ---------- */
 
 const PREFERRED_ORDER = ["scholarship", "job", "internship", "fellowship", "training", "competition"];
 
 export function deriveCategories(opportunities: Opportunity[]): Category[] {
   const map = new Map<string, Category>();
   for (const o of opportunities) {
-    for (const name of o.programs) {
-      const key = categoryKey(name);
-      if (key && !map.has(key)) map.set(key, { slug: slugify(name), name });
-    }
+    const name = o.category;
+    if (!name) continue;
+    const key = categoryKey(name);
+    if (key && !map.has(key)) map.set(key, { slug: slugify(name), name });
   }
   const rank = (c: Category) => {
     const i = PREFERRED_ORDER.indexOf(categoryKey(c.name));
@@ -289,5 +270,5 @@ export function sameCategory(a: string, b: string) {
 }
 
 export function inCategory(o: Opportunity, categorySlug: string) {
-  return o.programs.some((p) => sameCategory(p, categorySlug));
+  return Boolean(o.category && sameCategory(o.category, categorySlug));
 }

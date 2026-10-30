@@ -35,7 +35,7 @@ export default function OpportunityListing({ initialCategory }: { initialCategor
 
   const { data: opportunities, error, loading, retry } = useAsync(fetchPublishedOpportunities);
 
-  // Categories come from opportunity_programs / the category column; a category linked from the
+  // Categories come only from the opportunities.category column (never from programs); a category linked from the
   // header that has no opportunities yet is still shown (and highlighted).
   const categories = useMemo(() => {
     const list = deriveCategories(opportunities ?? []);

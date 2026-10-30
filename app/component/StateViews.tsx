@@ -28,21 +28,24 @@ export function OpportunityGridSkeleton({ count = 6, className = "grid gap-5 sm:
 export function PageSkeleton({ label = "Loading" }: { label?: string }) {
   return (
     <main className="min-h-screen bg-[#F8FAFD] pb-16" role="status" aria-label={label}>
-      <div className="mx-auto max-w-[1100px] animate-pulse px-5 pt-6 sm:px-8">
-        <div className="mb-5 h-3 w-64 rounded bg-slate-200" />
-        <div className="grid overflow-hidden rounded-2xl border border-slate-200 bg-white lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="min-h-[280px] bg-[#EEF5FF]" />
-          <div className="space-y-4 p-8">
-            <div className="h-5 w-24 rounded-full bg-slate-100" />
-            <div className="h-8 w-4/5 rounded bg-slate-100" />
-            <div className="h-4 w-1/3 rounded bg-slate-100" />
-            <div className="h-16 w-full rounded-xl bg-slate-100" />
-            <div className="h-12 w-full rounded-xl bg-slate-100" />
-          </div>
+      <div className="mx-auto max-w-[1240px] animate-pulse px-5 pt-5 sm:px-8">
+        <div className="mb-5 h-3 w-64 bg-slate-200" />
+        <div className="space-y-3 border-b border-slate-300 pb-5">
+          <div className="h-5 w-28 bg-slate-200" />
+          <div className="h-8 w-3/4 bg-slate-200" />
+          <div className="h-4 w-1/3 bg-slate-100" />
         </div>
-        <div className="mt-6 space-y-6">
-          <div className="h-40 rounded-2xl border border-slate-200 bg-white" />
-          <div className="h-40 rounded-2xl border border-slate-200 bg-white" />
+        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_330px]">
+          <div className="border border-slate-300 bg-white">
+            <div className="h-56 bg-slate-100" />
+            <div className="space-y-3 p-6">
+              <div className="h-4 w-40 bg-slate-200" />
+              <div className="h-3 w-full bg-slate-100" />
+              <div className="h-3 w-full bg-slate-100" />
+              <div className="h-3 w-2/3 bg-slate-100" />
+            </div>
+          </div>
+          <div className="h-72 border border-slate-300 bg-white" />
         </div>
       </div>
     </main>

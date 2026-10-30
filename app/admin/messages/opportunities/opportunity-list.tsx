@@ -46,8 +46,7 @@ export default async function OpportunityList({
 
   const all = ((data ?? []) as unknown as Row[]).filter((r) => {
     if (!category) return true;
-    const names = [r.category, ...(r.opportunity_programs ?? []).map((p) => p.program_name)].filter((n): n is string => Boolean(n));
-    return names.some((n) => sameCategory(n, category));
+    return Boolean(r.category && sameCategory(r.category, category));
   });
 
   const counts = {
@@ -143,7 +142,7 @@ export default async function OpportunityList({
               </thead>
               <tbody>
                 {rows.map((r) => {
-                  const cat = r.category || (r.opportunity_programs ?? []).slice().sort((a, b) => a.position - b.position)[0]?.program_name || "—";
+                  const cat = r.category || "—";
                   const apps = r.applications?.[0]?.count ?? 0;
                   return (
                     <tr key={r.id} className="border-b border-slate-100 align-top last:border-0 hover:bg-slate-50/50">
