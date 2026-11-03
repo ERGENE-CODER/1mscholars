@@ -3,8 +3,8 @@ import { Search } from "lucide-react";
 import { requireAdmin, formatDate, isAdminRole } from "@/lib/admin";
 import { hasServiceRole } from "@/lib/supabase/admin";
 import { createUser } from "./actions";
-import { SubmitButton } from "../_components/buttons";
-import { Badge, Card, EmptyBox, ErrorBox, Field, Notice, PageHeader, Tabs, inputClass } from "../_components/ui";
+import { SubmitButton } from "../../_components/buttons";
+import { Badge, Card, EmptyBox, ErrorBox, Field, Notice, PageHeader, Tabs, inputClass } from "../../_components/ui";
 
 export const metadata = { title: "Users | Admin" };
 

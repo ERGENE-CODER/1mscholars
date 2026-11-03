@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { requireAdmin, timeAgo, formatDate } from "@/lib/admin";
 import { statusMeta } from "@/lib/application-status";
-import { Badge } from "./_components/ui";
+import { Badge } from "../_components/ui";
 
 export const metadata = { title: "Dashboard | Admin" };
 
