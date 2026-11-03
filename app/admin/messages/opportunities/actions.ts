@@ -43,6 +43,7 @@ function readValues(fd: FormData): OpportunityFormValues {
     title: text(fd, "title"),
     organization: text(fd, "organization"),
     category: text(fd, "category"),
+    study_level: text(fd, "study_level"),
     country: text(fd, "country"),
     location: text(fd, "location"),
     deadline: text(fd, "deadline"),

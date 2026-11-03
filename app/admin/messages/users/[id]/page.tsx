@@ -5,9 +5,9 @@ import { requireAdmin, isUuid, formatDate } from "@/lib/admin";
 import { hasServiceRole } from "@/lib/supabase/admin";
 import { formatDateTime, statusMeta } from "@/lib/application-status";
 import { EDUCATION_LEVELS, INTEREST_AREAS } from "@/lib/validation";
-import { deleteUser, updateUser } from "../actions";
-import { ConfirmButton, SubmitButton } from "../../_components/buttons";
-import { Card, ErrorBox, Field, Notice, PageHeader, inputClass } from "../../_components/ui";
+import { deleteUser, updateUser } from "@/app/admin/messages/users/actions";
+import { ConfirmButton, SubmitButton } from "@/app/admin/_components/buttons";
+import { Card, ErrorBox, Field, Notice, PageHeader, inputClass } from "@/app/admin/_components/ui";
 
 export const metadata = { title: "User | Admin" };
 

@@ -3,10 +3,10 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, FileText } from "lucide-react";
 import { requireAdmin, toId } from "@/lib/admin";
 import { opportunityPath } from "@/lib/opportunities";
-import { deleteOpportunity } from "../../actions";
-import { ConfirmButton } from "../../../_components/buttons";
-import { Card, ErrorBox, Notice, PageHeader } from "../../../_components/ui";
-import OpportunityForm from "../../opportunity-form";
+import { deleteOpportunity } from "@/app/admin/messages/opportunities/actions";
+import { ConfirmButton } from "@/app/admin/_components/buttons";
+import { Card, ErrorBox, Notice, PageHeader } from "@/app/admin/_components/ui";
+import OpportunityForm from "@/app/admin/opportunities/opportunity-form";
 import type { OpportunityFormValues, OpportunityStatusValue } from "@/lib/admin-opportunities";
 
 export const metadata = { title: "Edit Opportunity | Admin" };
@@ -15,6 +15,7 @@ type Row = {
   id: number; title: string; organization: string; category: string | null; country: string | null;
   location: string | null; deadline: string | null; image_url: string | null; status: OpportunityStatusValue;
   featured: boolean; description: string | null; created_by: string | null;
+  study_level: string | null;
   opportunity_programs: { program_name: string; position: number; id: number }[] | null;
   opportunity_requirements: { requirement: string; position: number; id: number }[] | null;
   opportunity_benefits: { benefit: string; position: number; id: number }[] | null;
@@ -54,6 +55,7 @@ export default async function EditOpportunityPage({
     organization: row.organization,
     category: row.category ?? "",
     country: row.country ?? "",
+    study_level: row.study_level ?? "",
     location: row.location ?? "",
     deadline: row.deadline ?? "",
     image_url: row.image_url ?? "",

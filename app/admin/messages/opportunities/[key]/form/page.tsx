@@ -3,10 +3,10 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { requireAdmin, toId } from "@/lib/admin";
 import { normalizeOptions } from "@/lib/applications";
-import { deleteApplicationForm } from "../../actions";
-import { ConfirmButton } from "../../../_components/buttons";
-import { Card, ErrorBox, Notice, PageHeader } from "../../../_components/ui";
-import FormBuilder from "../../form-builder";
+import { deleteApplicationForm } from "@/app/admin/messages/opportunities/actions";
+import { ConfirmButton } from "@/app/admin/_components/buttons";
+import { Card, ErrorBox, Notice, PageHeader } from "@/app/admin/_components/ui";
+import FormBuilder from "@/app/admin/opportunities/form-builder";
 import type { BuilderField, FieldTypeValue } from "@/lib/admin-opportunities";
 
 export const metadata = { title: "Application Form | Admin" };
