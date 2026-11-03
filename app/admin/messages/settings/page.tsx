@@ -2,8 +2,8 @@ import { CheckCircle2, CircleAlert, Lock } from "lucide-react";
 import { requireAdmin } from "@/lib/admin";
 import { hasServiceRole } from "@/lib/supabase/admin";
 import { addAdminEmail, removeAdminEmail } from "./actions";
-import { ConfirmButton, SubmitButton } from "../_components/buttons";
-import { Card, ErrorBox, Notice, PageHeader, inputClass } from "../_components/ui";
+import { ConfirmButton, SubmitButton } from "../../_components/buttons";
+import { Card, ErrorBox, Notice, PageHeader, inputClass } from "../../_components/ui";
 
 export const metadata = { title: "Settings | Admin" };
 
