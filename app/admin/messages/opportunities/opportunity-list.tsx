@@ -3,8 +3,8 @@ import { ExternalLink, Pencil, Plus, Search, Star, FileText } from "lucide-react
 import { requireAdmin, formatDate } from "@/lib/admin";
 import { opportunityPath, sameCategory, prettifySlug } from "@/lib/opportunities";
 import { deleteOpportunity, setOpportunityStatus, toggleFeatured } from "./actions";
-import { Badge, Card, EmptyBox, ErrorBox, Notice, PageHeader, Tabs } from "../_components/ui";
-import { ConfirmButton, SubmitButton } from "../_components/buttons";
+import { Badge, Card, EmptyBox, ErrorBox, Notice, PageHeader, Tabs } from "../../_components/ui";
+import { ConfirmButton, SubmitButton } from "../../_components/buttons";
 
 type Row = {
   id: number;

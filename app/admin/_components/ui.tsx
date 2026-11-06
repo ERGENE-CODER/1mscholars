@@ -69,6 +69,7 @@ const BADGES: Record<string, string> = {
   draft: "bg-amber-50 text-amber-700",
   closed: "bg-slate-100 text-slate-600",
   admin: "bg-purple-50 text-purple-700",
+  sub_admin: "bg-indigo-50 text-indigo-700",
   user: "bg-slate-100 text-slate-600",
 };
 

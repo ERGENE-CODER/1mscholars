@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { backTo, friendlyError, isUuid, requireAdmin } from "@/lib/admin";
+import { backTo, friendlyError, isUuid, requireAdmin, requireFullAdmin } from "@/lib/admin";
 import { createAdminClient, hasServiceRole } from "@/lib/supabase/admin";
 import { EDUCATION_LEVELS, validateEmail, validateFullName, validatePassword } from "@/lib/validation";
 
@@ -10,15 +10,20 @@ const NEEDS_KEY =
   "This needs the SUPABASE_SERVICE_ROLE_KEY setting. Add it to your .env file (see supabase/admin-panel.sql notes in the README) and restart the server.";
 
 export async function updateUser(formData: FormData) {
-  const { supabase, userId } = await requireAdmin();
+  const { supabase, userId, isFull } = await requireAdmin();
   const id = formData.get("id");
   if (!isUuid(id)) backTo(LIST, "error", "That request wasn't valid.");
   const page = `${LIST}/${id}`;
 
   const role = String(formData.get("role") ?? "");
-  if (role !== "user" && role !== "admin") backTo(page, "error", "Choose a valid role.");
-  if (id === userId && role !== "admin") {
-    backTo(page, "error", "You can't remove your own admin access. Ask another admin to do it.");
+  if (role !== "user" && role !== "admin" && role !== "sub_admin") backTo(page, "error", "Choose a valid role.");
+  if (id === userId && role !== (isFull ? "admin" : "sub_admin")) {
+    backTo(page, "error", "You can't change your own admin access. Ask a full administrator to do it.");
+  }
+  if (!isFull) {
+    // Limited admins can edit profile details, but never anyone's role.
+    const { data: current } = await supabase.from("profiles").select("role").eq("id", id).maybeSingle();
+    if (!current || current.role !== role) backTo(page, "error", "Only a full administrator can change roles.");
   }
 
   const fullName = String(formData.get("full_name") ?? "").trim();
@@ -54,13 +59,14 @@ export async function updateUser(formData: FormData) {
 
 /** Creates an account with a temporary password the admin passes on to the person. */
 export async function createUser(formData: FormData) {
-  await requireAdmin();
+  const { isFull } = await requireAdmin();
   if (!hasServiceRole()) backTo(LIST, "error", NEEDS_KEY);
 
   const fullName = String(formData.get("full_name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
-  const makeAdmin = formData.get("role") === "admin";
+  const roleChoice = String(formData.get("role") ?? "user");
+  const newRole = isFull && (roleChoice === "admin" || roleChoice === "sub_admin") ? roleChoice : null; // limited admins can only create students
 
   const problem = validateFullName(fullName) ?? validateEmail(email) ?? validatePassword(password);
   if (problem) backTo(LIST, "error", problem);
@@ -78,7 +84,7 @@ export async function createUser(formData: FormData) {
 
   const { error: profileError } = await admin
     .from("profiles")
-    .upsert({ id: data.user.id, email, full_name: fullName, ...(makeAdmin ? { role: "admin" } : {}) }, { onConflict: "id" });
+    .upsert({ id: data.user.id, email, full_name: fullName, ...(newRole ? { role: newRole } : {}) }, { onConflict: "id" });
   if (profileError) backTo(`${LIST}/${data.user.id}`, "error", `The account was created, but its profile wasn't saved: ${profileError.message}`);
 
   revalidatePath("/admin/users");
@@ -89,7 +95,7 @@ export async function createUser(formData: FormData) {
  * Deletes the account. Their applications are kept (anonymised) so records aren't lost.
  */
 export async function deleteUser(formData: FormData) {
-  const { userId } = await requireAdmin();
+  const { userId } = await requireFullAdmin(LIST);
   const id = formData.get("id");
   if (!isUuid(id)) backTo(LIST, "error", "That request wasn't valid.");
   if (id === userId) backTo(`${LIST}/${id}`, "error", "You can't delete your own account.");

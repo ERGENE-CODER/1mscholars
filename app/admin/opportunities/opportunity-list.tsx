@@ -17,6 +17,7 @@ type Row = {
   featured: boolean;
   image_url: string | null;
   created_at: string;
+  created_by: string | null;
   opportunity_programs: { program_name: string; position: number }[] | null;
   applications: { count: number }[] | null;
 };
@@ -33,19 +34,20 @@ export default async function OpportunityList({
   category?: string; // URL slug, e.g. "scholarships"
   searchParams: { status?: string; q?: string; notice?: string; error?: string };
 }) {
-  const { supabase } = await requireAdmin();
+  const { supabase, userId, isFull } = await requireAdmin();
   const status: StatusFilter = (["published", "draft", "closed"] as const).find((s) => s === searchParams.status) ?? "all";
   const q = (searchParams.q ?? "").trim().toLowerCase();
 
   const { data, error } = await supabase
     .from("opportunities")
-    .select("id, title, organization, category, country, deadline, status, featured, image_url, created_at, opportunity_programs(program_name, position), applications(count)")
+    .select("id, title, organization, category, country, deadline, status, featured, image_url, created_at, created_by, opportunity_programs(program_name, position), applications(count)")
     .order("created_at", { ascending: false })
     .limit(LIMIT);
 
   const all = ((data ?? []) as unknown as Row[]).filter((r) => {
     if (!category) return true;
-    return Boolean(r.category && sameCategory(r.category, category));
+    const names = [r.category, ...(r.opportunity_programs ?? []).map((p) => p.program_name)].filter((n): n is string => Boolean(n));
+    return names.some((n) => sameCategory(n, category));
   });
 
   const counts = {
@@ -141,7 +143,7 @@ export default async function OpportunityList({
               </thead>
               <tbody>
                 {rows.map((r) => {
-                  const cat = r.category || "—";
+                  const cat = r.category || (r.opportunity_programs ?? []).slice().sort((a, b) => a.position - b.position)[0]?.program_name || "—";
                   const apps = r.applications?.[0]?.count ?? 0;
                   return (
                     <tr key={r.id} className="border-b border-slate-100 align-top last:border-0 hover:bg-slate-50/50">
@@ -175,11 +177,13 @@ export default async function OpportunityList({
                             <input type="hidden" name="returnTo" value={returnTo} />
                             <SubmitButton variant="secondary" pendingLabel="…" className="!px-2.5 !py-1.5 !text-xs">{r.featured ? "Unfeature" : "Feature"}</SubmitButton>
                           </form>
-                          <form action={deleteOpportunity}>
-                            <input type="hidden" name="id" value={r.id} />
-                            <input type="hidden" name="returnTo" value={returnTo} />
-                            <ConfirmButton message={`Delete "${r.title}"? This also removes its requirements, benefits and application form. This can't be undone.`} pendingLabel="Deleting…" className="!px-2.5 !py-1.5 !text-xs">Delete</ConfirmButton>
-                          </form>
+                          {(isFull || r.created_by === userId) && (
+                            <form action={deleteOpportunity}>
+                              <input type="hidden" name="id" value={r.id} />
+                              <input type="hidden" name="returnTo" value={returnTo} />
+                              <ConfirmButton message={`Delete "${r.title}"? This also removes its requirements, benefits and application form. This can't be undone.`} pendingLabel="Deleting…" className="!px-2.5 !py-1.5 !text-xs">Delete</ConfirmButton>
+                            </form>
+                          )}
                         </div>
                       </td>
                     </tr>

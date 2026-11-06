@@ -28,7 +28,7 @@ export default async function AdminUserPage({
   const sp = await searchParams;
   if (!isUuid(id)) notFound();
 
-  const { supabase, userId } = await requireAdmin();
+  const { supabase, userId, isFull } = await requireAdmin();
   const { data, error } = await supabase
     .from("profiles")
     .select("id, full_name, email, phone_number, education_level, career_interest, interests, role, onboarding_completed, created_at")
@@ -86,12 +86,13 @@ export default async function AdminUserPage({
               ))}
             </div>
           </fieldset>
-          <Field label="Role" hint={isSelf ? "You can't change your own role." : "Administrators can use this admin panel."}>
-            <select name="role" defaultValue={p.role} disabled={isSelf} className={inputClass}>
+          <Field label="Role" hint={isSelf ? "You can't change your own role." : !isFull ? "Only a full administrator can change roles." : "Full admins can do everything. Limited admins can't manage admins, delete users, or delete what others published."}>
+            <select name="role" defaultValue={p.role} disabled={isSelf || !isFull} className={inputClass}>
               <option value="user">Student / user</option>
-              <option value="admin">Administrator</option>
+              <option value="sub_admin">Limited admin</option>
+              <option value="admin">Full admin</option>
             </select>
-            {isSelf && <input type="hidden" name="role" value="admin" />}
+            {(isSelf || !isFull) && <input type="hidden" name="role" value={p.role} />}
           </Field>
           <label className="flex items-center gap-3 self-center text-sm font-medium text-slate-700">
             <input type="checkbox" name="onboarding_completed" defaultChecked={p.onboarding_completed} className="h-4 w-4 accent-blue-600" /> Finished the get-started questions
@@ -122,7 +123,7 @@ export default async function AdminUserPage({
         )}
       </Card>
 
-      {!isSelf && (
+      {!isSelf && isFull && (
         <Card className="border-red-200">
           <h2 className="text-base font-bold text-red-700">Delete this user</h2>
           <p className="mt-1 text-sm text-slate-500">Removes their account and profile. Their applications stay in the system without a name attached.</p>
