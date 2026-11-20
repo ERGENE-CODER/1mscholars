@@ -24,6 +24,7 @@ import {
   Image,
   MessageSquare,
   Mail,
+  Globe,
 } from "lucide-react";
 import { useState } from "react";
 import { signOut } from "@/app/login/actions";
@@ -110,6 +111,7 @@ const mainNavigation = [
     href: "/admin/settings",
     icon: Settings,
   },
+
 ];
 
 /* =========================================================
@@ -291,18 +293,36 @@ export default function AdminShell({
 
         {/* LOGOUT */}
 
-        <div className="border-t border-white/10 p-4">
-          <form action={signOut}>
-            <button
-              type="submit"
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-slate-300 hover:bg-white/10 hover:text-white"
-            >
-              <LogOut size={18} />
+        {/* VIEW PORTAL + LOGOUT */}
 
-              Logout
-            </button>
-          </form>
-        </div>
+<div className="space-y-1 border-t border-white/10 p-4">
+  {/* View user portal */}
+
+  <Link
+    href="/"
+    target="_blank"
+    rel="noopener noreferrer"
+    onClick={() => setSidebarOpen(false)}
+    className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
+  >
+    <Globe size={18} />
+
+    View Portal
+  </Link>
+
+  {/* Logout */}
+
+  <form action={signOut}>
+    <button
+      type="submit"
+      className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-slate-300 hover:bg-white/10 hover:text-white"
+    >
+      <LogOut size={18} />
+
+      Logout
+    </button>
+  </form>
+</div>
       </aside>
 
       {/* MAIN AREA */}

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download, Eye } from "lucide-react";
 import { requireAdmin, toId } from "@/lib/admin";
 import {
   STATUS_COMPLETED,
@@ -64,13 +64,19 @@ export default async function AdminApplicationDetailPage({
     .map((a) => ({ ...a, field: one(a.application_fields) }))
     .sort((a, b) => (a.field?.position ?? 0) - (b.field?.position ?? 0) || a.id - b.id);
 
-  // Uploaded files (only if a Storage bucket is configured): short-lived download links.
-  const fileLinks = new Map<number, string>();
+  // Uploaded files (only if a Storage bucket is configured):
+  // one short-lived link to view in the browser, one to force a download.
+  const viewLinks = new Map<number, string>();
+  const downloadLinks = new Map<number, string>();
   for (const a of answers) {
     const meta = a.answer_json as FileMeta | null;
     if (a.field?.field_type === "file" && meta && typeof meta === "object" && meta.bucket && meta.path) {
-      const { data } = await supabase.storage.from(meta.bucket).createSignedUrl(meta.path, 3600);
-      if (data?.signedUrl) fileLinks.set(a.id, data.signedUrl);
+      const [view, download] = await Promise.all([
+        supabase.storage.from(meta.bucket).createSignedUrl(meta.path, 3600),
+        supabase.storage.from(meta.bucket).createSignedUrl(meta.path, 3600, { download: meta.name ?? true }),
+      ]);
+      if (view.data?.signedUrl) viewLinks.set(a.id, view.data.signedUrl);
+      if (download.data?.signedUrl) downloadLinks.set(a.id, download.data.signedUrl);
     }
   }
 
@@ -128,8 +134,40 @@ export default async function AdminApplicationDetailPage({
               <div key={a.id} className="py-3">
                 <dt className="text-xs font-bold text-slate-500">{a.field?.label ?? `Question #${a.field_id}`}</dt>
                 <dd className="mt-1 whitespace-pre-line break-words text-sm text-slate-800">
-                  {fileLinks.get(a.id) ? (
-                    <a href={fileLinks.get(a.id)} target="_blank" rel="noreferrer" className="font-semibold text-blue-600">Download {(a.answer_json as FileMeta).name ?? "file"}</a>
+                  {viewLinks.get(a.id) ? (
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="max-w-full truncate font-medium text-slate-700">
+                        {(a.answer_json as FileMeta).name ?? "file"}
+                      </span>
+
+                      <div className="flex items-center gap-2">
+                        {/* View (opens in a new tab) */}
+                        <a
+                          href={viewLinks.get(a.id)}
+                          target="_blank"
+                          rel="noreferrer"
+                          title="View document"
+                          aria-label="View document"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600"
+                        >
+                          <Eye size={17} />
+                        </a>
+
+                        {/* Download */}
+                        {downloadLinks.get(a.id) && (
+                          <a
+                            href={downloadLinks.get(a.id)}
+                            title="Download document"
+                            aria-label="Download document"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600"
+                          >
+                            <Download size={17} />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ) : a.field?.field_type === "file" && a.answer_text ? (
+                    `${a.answer_text} (file not stored)`
                   ) : (
                     a.answer_text || "—"
                   )}
