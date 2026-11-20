@@ -2,17 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  FaFacebookF,
-  FaInstagram,
-  FaLinkedinIn,
-  FaTiktok,
-  FaTwitter,
-  FaWhatsapp,
-  FaYoutube,
-} from "react-icons/fa6";
-import { ArrowRight, ArrowUp, TriangleAlert } from "lucide-react";
-import { SOCIAL_URLS } from "@/lib/site-links";
+import { ArrowUp, TriangleAlert } from "lucide-react";
 
 /* =========================================================
    EDIT THE CONTENT HERE
@@ -23,19 +13,6 @@ const HIDDEN_PREFIXES = ["/admin"];
 
 const EMAIL = "1mscholarsltd@gmail.com";
 const PHONES = ["+250 781 841 929", "+250 782 774 986", "+250 789 422 004"];
-
-// The social addresses live in lib/site-links.ts. Put your WhatsApp *Channel* link
-// (https://whatsapp.com/channel/...) in WHATSAPP_CHANNEL.
-const SOCIALS = [
-  { label: "Facebook", href: SOCIAL_URLS.facebook, icon: FaFacebookF },
-  { label: "Instagram", href: SOCIAL_URLS.instagram, icon: FaInstagram },
-  { label: "Twitter", href: SOCIAL_URLS.twitter, icon: FaTwitter },
-  { label: "TikTok", href: SOCIAL_URLS.tiktok, icon: FaTiktok },
-  { label: "LinkedIn", href: SOCIAL_URLS.linkedin, icon: FaLinkedinIn },
-  { label: "YouTube", href: SOCIAL_URLS.youtube, icon: FaYoutube },
-  { label: "WhatsApp", href: SOCIAL_URLS.whatsapp, icon: FaWhatsapp },
-];
-const WHATSAPP_CHANNEL = "https://wa.me/250781841929";
 
 const OPPORTUNITY_LINKS = [
   { label: "Scholarships", href: "/opportunities/scholarships" },
@@ -65,14 +42,14 @@ const COMPANY_LINKS = [
    FOOTER
    ========================================================= */
 
-const headingClass = "text-[17px] font-semibold text-slate-300";
+const headingClass = "text-[17px] font-semibold text-slate-200";
 const linkClass = "text-sm text-slate-400 transition hover:text-white";
 
 function LinkColumn({ title, links }: { title: string; links: { label: string; href: string }[] }) {
   return (
     <nav aria-label={title}>
       <h3 className={headingClass}>{title}</h3>
-      <ul className="mt-3 space-y-3">
+      <ul className="mt-4 space-y-3">
         {links.map((link) => (
           <li key={link.label}>
             <Link href={link.href} className={linkClass}>
@@ -91,38 +68,22 @@ export default function Footer() {
 
   return (
     <footer className="w-full bg-[#050B18] text-slate-400">
-      <div className="mx-auto max-w-[1280px] px-5 pb-6 pt-12 sm:px-10">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.5fr)_repeat(4,minmax(0,1fr))]">
-          {/* BRAND */}
-          <div>
-            <Link href="/" className="flex items-center gap-2.5" aria-label="1M Scholars Ltd home">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#F5B335]/30 bg-[#F5B335]/10 font-serif text-sm font-bold text-[#F5B335]">
-                1M
+      <div className="mx-auto max-w-[1280px] px-5 pb-8 pt-14 sm:px-10">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-[minmax(0,1.6fr)_repeat(4,minmax(0,1fr))] lg:gap-x-12">
+          {/* BRAND: same font and size as the name in the header */}
+          <div className="col-span-2 lg:col-span-1">
+            <Link href="/" className="inline-block" aria-label="1M Scholars Ltd home">
+              <span className="block whitespace-nowrap text-[20px] font-bold leading-[29px] tracking-[-0.5px] text-white sm:text-[24px]">
+                1M Scholars Ltd
               </span>
-              <span className="leading-tight">
-                <span className="block text-[10px] font-medium uppercase tracking-wider text-slate-500">Kigali, Rwanda</span>
-                <span className="block font-serif text-lg font-bold text-white">1M Scholars Ltd</span>
+              <span className="mt-1 block text-[13px] font-medium leading-[16px] text-slate-400">
+                Kigali, Rwanda
               </span>
             </Link>
 
-            <p className="mt-4 max-w-[290px] text-sm leading-7 text-slate-400">
+            <p className="mt-5 max-w-[320px] text-sm leading-7 text-slate-400">
               Rwanda&apos;s trusted youth opportunity platform — connecting students, graduates and professionals to scholarships, jobs and skills training.
             </p>
-
-            <div className="mt-5 flex flex-wrap gap-2.5">
-              {SOCIALS.map(({ label, href, icon: Icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-400 transition hover:border-[#F5B335]/50 hover:text-[#F5B335]"
-                >
-                  <Icon size={14} />
-                </a>
-              ))}
-            </div>
           </div>
 
           <LinkColumn title="Opportunities" links={OPPORTUNITY_LINKS} />
@@ -130,9 +91,9 @@ export default function Footer() {
           <LinkColumn title="Company" links={COMPANY_LINKS} />
 
           {/* CONTACT */}
-          <div>
+          <div className="col-span-2 sm:col-span-1">
             <h3 className={headingClass}>Contact</h3>
-            <ul className="mt-3 space-y-3 text-sm">
+            <ul className="mt-4 space-y-3 text-sm">
               <li>Kigali, Rwanda</li>
               <li>
                 <a href={`mailto:${EMAIL}`} className={`${linkClass} break-all`}>
@@ -146,42 +107,30 @@ export default function Footer() {
                   </a>
                 </li>
               ))}
-              <li>
-                <a
-                  href={WHATSAPP_CHANNEL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 font-medium text-[#F5B335] transition hover:text-[#ffc95e]"
-                >
-                  WhatsApp Channel <ArrowRight size={14} />
-                </a>
-              </li>
             </ul>
           </div>
         </div>
 
-        {/* DISCLAIMER */}
-        <p className="mt-10 flex max-w-3xl items-start gap-2 text-xs leading-5 text-slate-500">
-          <TriangleAlert size={14} className="mt-0.5 shrink-0 text-amber-500" aria-hidden="true" />
-          <span>
-            <strong className="font-semibold text-slate-400">Important:</strong> 1M Scholars Ltd is a consultative agency. Fees paid cover guidance and application support services only. We do not guarantee admission, employment, scholarship awards, or placement. All final decisions rest with the respective institutions.
-          </span>
-        </p>
+        {/* DISCLAIMER + BOTTOM BAR */}
+        <div className="mt-12 border-t border-white/10 pt-6">
+          <p className="flex max-w-3xl items-start gap-2 text-xs leading-5 text-slate-500">
+            <TriangleAlert size={14} className="mt-0.5 shrink-0 text-amber-500" aria-hidden="true" />
+            <span>
+              <strong className="font-semibold text-slate-400">Important:</strong> 1M Scholars Ltd is a consultative agency. Fees paid cover guidance and application support services only. We do not guarantee admission, employment, scholarship awards, or placement. All final decisions rest with the respective institutions.
+            </span>
+          </p>
 
-        {/* BOTTOM BAR */}
-        <div className="mt-6 flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-5 text-sm text-slate-400 sm:flex-row sm:items-center">
-          <div className="flex items-center gap-3">
+          <div className="mt-6 flex items-center justify-between gap-3 text-sm text-slate-400">
+            <span>© {new Date().getFullYear()} 1M Scholars Ltd. All rights reserved.</span>
             <button
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               aria-label="Back to top"
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 text-slate-300 transition hover:border-[#F5B335]/50 hover:text-[#F5B335]"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 text-slate-300 transition hover:border-[#F5B335]/50 hover:text-[#F5B335]"
             >
               <ArrowUp size={16} />
             </button>
-            <span>© {new Date().getFullYear()} 1M Scholars Ltd. All rights reserved.</span>
           </div>
-          <span>@1MscholarsLtd on all platforms · @1mscholarsltdservices on YouTube</span>
         </div>
       </div>
     </footer>

@@ -264,6 +264,62 @@ export async function resendConfirmation(
   return { sent: true, message: `Confirmation email sent to ${email}.` };
 }
 
+export type ForgotState = {
+  errors?: { email?: string };
+  values?: { email?: string };
+  message?: string;
+  success?: boolean;
+  email?: string;
+};
+
+/**
+ * Sends a "choose a new password" email.
+ * The answer is the same whether or not the address has an account, so this
+ * form can't be used to find out who is registered.
+ */
+export async function requestPasswordReset(
+  _prevState: ForgotState,
+  formData: FormData
+): Promise<ForgotState> {
+  const email = ((formData.get("email") as string) || "").trim();
+  const values = { email };
+
+  const emailError = validateEmail(email);
+  if (emailError) return { errors: { email: emailError }, values };
+
+  const supabase = await createClient();
+  const siteUrl = getSiteUrl(await headers());
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${siteUrl}/auth/callback?next=/reset-password`,
+  });
+
+  const rateLimited = error ? isRateLimited(error) : false;
+
+  if (error && !rateLimited) {
+    if (isConnectionProblem(error)) {
+      return {
+        message:
+          "We couldn't reach the server. Check your connection and try again.",
+        values,
+      };
+    }
+    console.error("requestPasswordReset failed:", error);
+    return {
+      message: "We couldn't send the email. Please try again in a moment.",
+      values,
+    };
+  }
+
+  return {
+    success: true,
+    email,
+    message: rateLimited
+      ? `If an account exists for ${email}, a reset link is already on its way. Please wait a minute before asking for another.`
+      : `If an account exists for ${email}, we've sent a link to choose a new password. It can take a minute to arrive.`,
+  };
+}
+
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();

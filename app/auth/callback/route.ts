@@ -7,28 +7,46 @@ import { OPPORTUNITIES_PATH } from "@/lib/routes";
  *
  * - Success: session is created, send them to onboarding (or straight in if
  *   they already finished it).
+ * - Password-reset link (?next=/reset-password): signs the person in with a
+ *   short recovery session and sends them to the "new password" page.
  * - Expired / already-used link: Supabase appends ?error=...&error_code=...
  * - Link opened in a different browser or device than the one that signed up:
  *   the PKCE code can't be exchanged there, but Supabase has already marked
  *   the email as confirmed, so we just ask them to sign in.
  */
+// Only these places may be requested through ?next= (stops open redirects).
+const RESET_PATH = "/reset-password";
+const RESET_EXPIRED = "/login?mode=forgot&notice=reset-expired";
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
+  const isReset = searchParams.get("next") === RESET_PATH;
 
   if (searchParams.get("error") || searchParams.get("error_code")) {
-    return NextResponse.redirect(`${origin}/login?mode=login&notice=link-expired`);
+    return NextResponse.redirect(
+      `${origin}${isReset ? RESET_EXPIRED : "/login?mode=login&notice=link-expired"}`
+    );
   }
 
   const code = searchParams.get("code");
   if (!code) {
-    return NextResponse.redirect(`${origin}/login?mode=login`);
+    return NextResponse.redirect(
+      `${origin}${isReset ? RESET_EXPIRED : "/login?mode=login"}`
+    );
   }
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error || !data.user) {
-    return NextResponse.redirect(`${origin}/login?mode=login&notice=confirm-done`);
+    return NextResponse.redirect(
+      `${origin}${isReset ? RESET_EXPIRED : "/login?mode=login&notice=confirm-done"}`
+    );
+  }
+
+  // Password-reset link: signed in with a recovery session, now choose a new password.
+  if (isReset) {
+    return NextResponse.redirect(`${origin}${RESET_PATH}`);
   }
 
   const { data: profile } = await supabase

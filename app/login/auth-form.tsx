@@ -4,9 +4,11 @@ import { useActionState, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
+  requestPasswordReset,
   resendConfirmation,
   signUp,
   signIn,
+  type ForgotState,
   type ResendState,
   type SignUpState,
   type SignInState,
@@ -18,20 +20,21 @@ import {
   validatePassword,
 } from "@/lib/validation";
 
-type Mode = "signup" | "login";
+type Mode = "signup" | "login" | "forgot";
 type SignUpField = "fullName" | "email" | "password" | "confirmPassword";
 
 const initialSignUpState: SignUpState = {};
 const initialSignInState: SignInState = {};
 const initialResendState: ResendState = {};
+const initialForgotState: ForgotState = {};
 
-const inputClass =
+export const inputClass =
   "h-[48px] w-full rounded-xl border border-[#CBD5E1] bg-white px-4 text-[15px] text-[#102F59] outline-none transition placeholder:text-gray-400 focus:border-[#2166E8] focus:ring-2 focus:ring-[#2166E8]/20 aria-invalid:border-red-500";
 
-const primaryButtonClass =
+export const primaryButtonClass =
   "flex h-[50px] w-full items-center justify-center rounded-xl bg-[#2166E8] text-[15px] font-semibold text-white shadow-sm transition hover:bg-[#1554C7] disabled:cursor-not-allowed disabled:opacity-70";
 
-const labelClass = "mb-1.5 block text-[14px] font-semibold text-[#102F59]";
+export const labelClass = "mb-1.5 block text-[14px] font-semibold text-[#102F59]";
 
 /** Banners shown when /auth/callback sends someone back here (?notice=...). */
 const NOTICES: Record<string, { tone: "info" | "error"; text: string }> = {
@@ -39,13 +42,17 @@ const NOTICES: Record<string, { tone: "info" | "error"; text: string }> = {
     tone: "info",
     text: "If you've confirmed your email, sign in below to continue.",
   },
+  "reset-expired": {
+    tone: "error",
+    text: "That reset link didn't work. It may have expired, been used already, or been opened in a different browser than the one you asked from. Request a new link below.",
+  },
   "link-expired": {
     tone: "error",
     text: "That confirmation link has expired or was already used. Enter your details below and we'll send a new one.",
   },
 };
 
-function FieldError({ message }: { message?: string }) {
+export function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return (
     <p className="mt-1.5 text-[13px] font-medium text-red-600" role="alert">
@@ -54,7 +61,7 @@ function FieldError({ message }: { message?: string }) {
   );
 }
 
-function PasswordInput({
+export function PasswordInput({
   id,
   name,
   autoComplete,
@@ -306,7 +313,13 @@ function SignUpForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
   );
 }
 
-function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
+function SignInForm({
+  onSwitchToSignUp,
+  onForgot,
+}: {
+  onSwitchToSignUp: () => void;
+  onForgot: (email: string) => void;
+}) {
   const [state, formAction, pending] = useActionState(
     signIn,
     initialSignInState
@@ -333,9 +346,27 @@ function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
         </div>
 
         <div>
-          <label htmlFor="login-password" className={labelClass}>
-            Password
-          </label>
+          <div className="mb-1.5 flex items-center justify-between">
+            <label
+              htmlFor="login-password"
+              className="text-[14px] font-semibold text-[#102F59]"
+            >
+              Password
+            </label>
+            <button
+              type="button"
+              onClick={(e) => {
+                const form = e.currentTarget.closest("form");
+                const typed = form
+                  ? ((new FormData(form).get("email") as string) || "").trim()
+                  : "";
+                onForgot(typed);
+              }}
+              className="text-[13px] font-semibold text-[#2166E8] hover:underline"
+            >
+              Forgot password?
+            </button>
+          </div>
           <PasswordInput
             id="login-password"
             name="password"
@@ -374,35 +405,135 @@ function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
   );
 }
 
+function ForgotPasswordForm({
+  initialEmail,
+  onBackToLogin,
+}: {
+  initialEmail: string;
+  onBackToLogin: () => void;
+}) {
+  const [state, formAction, pending] = useActionState(
+    requestPasswordReset,
+    initialForgotState
+  );
+
+  if (state.success) {
+    return (
+      <div className="py-4 text-center">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#EEF5FF] text-[28px]">
+          ✉️
+        </div>
+        <h2 className="text-[20px] font-bold text-[#12396B]">Check your email</h2>
+        <p className="mt-2 text-[14px] leading-[22px] text-gray-500">
+          {state.message}
+        </p>
+        <p className="mt-2 text-[13px] leading-[20px] text-gray-400">
+          Can&apos;t find it? Check your spam folder. Open the link in this same
+          browser.
+        </p>
+        <form action={formAction} className="mt-4">
+          <input type="hidden" name="email" value={state.email ?? ""} />
+          <button
+            type="submit"
+            disabled={pending}
+            className="text-[14px] font-semibold text-[#2166E8] hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {pending ? "Sending..." : "Send the link again"}
+          </button>
+        </form>
+        <button
+          type="button"
+          onClick={onBackToLogin}
+          className="mt-6 text-[14px] font-semibold text-[#2166E8] hover:underline"
+        >
+          Back to sign in
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form action={formAction} className="space-y-5" noValidate>
+      <div>
+        <label htmlFor="forgot-email" className={labelClass}>
+          Email Address
+        </label>
+        <input
+          id="forgot-email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          placeholder="you@example.com"
+          defaultValue={state.values?.email ?? initialEmail}
+          aria-invalid={Boolean(state.errors?.email)}
+          className={inputClass}
+        />
+        <FieldError message={state.errors?.email} />
+      </div>
+
+      {state.message && (
+        <p className="text-[14px] font-medium text-red-600" role="alert">
+          {state.message}
+        </p>
+      )}
+
+      <button type="submit" disabled={pending} className={primaryButtonClass}>
+        {pending ? "Sending..." : "Send Reset Link"}
+      </button>
+
+      <p className="text-center text-[14px] text-gray-500">
+        Remembered it?{" "}
+        <button
+          type="button"
+          onClick={onBackToLogin}
+          className="font-semibold text-[#2166E8] hover:underline"
+        >
+          Back to sign in
+        </button>
+      </p>
+    </form>
+  );
+}
+
 export default function AuthForm() {
-  // The URL is the single source of truth for which tab is showing. A plain
-  // useState(initialMode) only reads its initial value once, so when someone
-  // on /login?mode=login clicked "Get Started" in the header (same page,
-  // new query string) the form stayed on Sign In.
+  // The URL is the single source of truth for which view is showing
+  // (?mode=signup | login | forgot), so refresh, back and shared links work.
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const [prefillEmail, setPrefillEmail] = useState("");
 
-  const mode: Mode = searchParams.get("mode") === "login" ? "login" : "signup";
+  const modeParam = searchParams.get("mode");
+  const mode: Mode =
+    modeParam === "login" ? "login" : modeParam === "forgot" ? "forgot" : "signup";
   const isSignUp = mode === "signup";
+  const isForgot = mode === "forgot";
   const notice = isSignUp ? null : NOTICES[searchParams.get("notice") ?? ""];
 
   function setMode(next: Mode) {
     if (next === mode) return;
-    // Integrates with Next's router, so useSearchParams updates instantly
-    // and refresh / back / shared links keep the chosen tab.
+    // Integrates with Next's router, so useSearchParams updates instantly.
     window.history.replaceState(null, "", `${pathname}?mode=${next}`);
   }
+
+  const heading = isForgot
+    ? "Reset your password"
+    : isSignUp
+      ? "Create your account"
+      : "Welcome back";
+  const subheading = isForgot
+    ? "Enter the email you signed up with and we'll send you a link to choose a new password."
+    : isSignUp
+      ? "Join 1M Scholars and discover opportunities that can help shape your future."
+      : "Sign in to continue exploring opportunities built for your future.";
 
   return (
     <div className="w-full max-w-[440px] rounded-2xl border border-gray-100 bg-white p-8 shadow-[0_20px_60px_rgba(15,45,90,0.08)] sm:p-10">
       <div className="mb-8">
         <h1 className="text-[26px] font-bold leading-[32px] text-[#12396B]">
-          {isSignUp ? "Create your account" : "Welcome back"}
+          {heading}
         </h1>
         <p className="mt-2 text-[14px] leading-[22px] text-gray-500">
-          {isSignUp
-            ? "Join 1M Scholars and discover opportunities that can help shape your future."
-            : "Sign in to continue exploring opportunities built for your future."}
+          {subheading}
         </p>
       </div>
 
@@ -419,48 +550,61 @@ export default function AuthForm() {
         </p>
       )}
 
-      <div
-        role="tablist"
-        aria-label="Sign in or create an account"
-        className="mb-7 flex rounded-xl bg-[#EEF5FF] p-1"
-      >
-        <button
-          type="button"
-          role="tab"
-          aria-selected={isSignUp}
-          onClick={() => setMode("signup")}
-          className={`h-[40px] flex-1 rounded-lg text-[14px] font-semibold transition ${
-            isSignUp
-              ? "bg-[#2166E8] text-white shadow-sm"
-              : "text-[#12396B] hover:bg-white/70 hover:text-[#2166E8]"
-          }`}
+      {!isForgot && (
+        <div
+          role="tablist"
+          aria-label="Sign in or create an account"
+          className="mb-7 flex rounded-xl bg-[#EEF5FF] p-1"
         >
-          Create Account
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={!isSignUp}
-          onClick={() => setMode("login")}
-          className={`h-[40px] flex-1 rounded-lg text-[14px] font-semibold transition ${
-            !isSignUp
-              ? "bg-[#2166E8] text-white shadow-sm"
-              : "text-[#12396B] hover:bg-white/70 hover:text-[#2166E8]"
-          }`}
-        >
-          Sign In
-        </button>
-      </div>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={isSignUp}
+            onClick={() => setMode("signup")}
+            className={`h-[40px] flex-1 rounded-lg text-[14px] font-semibold transition ${
+              isSignUp
+                ? "bg-[#2166E8] text-white shadow-sm"
+                : "text-[#12396B] hover:bg-white/70 hover:text-[#2166E8]"
+            }`}
+          >
+            Create Account
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={!isSignUp}
+            onClick={() => setMode("login")}
+            className={`h-[40px] flex-1 rounded-lg text-[14px] font-semibold transition ${
+              !isSignUp
+                ? "bg-[#2166E8] text-white shadow-sm"
+                : "text-[#12396B] hover:bg-white/70 hover:text-[#2166E8]"
+            }`}
+          >
+            Sign In
+          </button>
+        </div>
+      )}
 
-      {isSignUp ? (
+      {isForgot ? (
+        <ForgotPasswordForm
+          initialEmail={prefillEmail}
+          onBackToLogin={() => setMode("login")}
+        />
+      ) : isSignUp ? (
         <SignUpForm onSwitchToLogin={() => setMode("login")} />
       ) : (
-        <SignInForm onSwitchToSignUp={() => setMode("signup")} />
+        <SignInForm
+          onSwitchToSignUp={() => setMode("signup")}
+          onForgot={(typedEmail) => {
+            setPrefillEmail(typedEmail);
+            setMode("forgot");
+          }}
+        />
       )}
 
       <p className="mt-8 text-center text-[13px] text-gray-400">
         By continuing you agree to 1M Scholars&apos;{" "}
-        <Link href="/aboutus" className="underline hover:text-[#2166E8]">
+        <Link href="/about" className="underline hover:text-[#2166E8]">
           terms
         </Link>
         .
