@@ -26,8 +26,8 @@ export default async function ApplicationFormPage({
   const opportunityId = toId(key);
   if (!opportunityId) notFound();
 
-  const { supabase } = await requireAdmin();
-  const { data: opp, error: oppError } = await supabase.from("opportunities").select("id, title, status").eq("id", opportunityId).maybeSingle();
+  const { supabase, userId, isFull } = await requireAdmin();
+  const { data: opp, error: oppError } = await supabase.from("opportunities").select("id, title, status, created_by").eq("id", opportunityId).maybeSingle();
   if (oppError) return <div className="mx-auto max-w-3xl"><ErrorBox title="Couldn't load this opportunity." message={oppError.message} /></div>;
   if (!opp) notFound();
 
@@ -88,7 +88,7 @@ export default async function ApplicationFormPage({
         initialFields={fields}
       />
 
-      {form && (
+      {form && (isFull || opp.created_by === userId) && (
         <Card className="border-red-200">
           <h2 className="text-base font-bold text-red-700">Delete this form</h2>
           <p className="mt-1 text-sm text-slate-500">Students will no longer be able to apply until you create a new form. Not possible once applications exist.</p>

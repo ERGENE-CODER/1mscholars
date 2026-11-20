@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
-import { requireAdmin, formatDate } from "@/lib/admin";
+import { requireAdmin, formatDate, isAdminRole } from "@/lib/admin";
 import { hasServiceRole } from "@/lib/supabase/admin";
 import { createUser } from "./actions";
 import { SubmitButton } from "../_components/buttons";
@@ -28,7 +28,7 @@ export default async function AdminUsersPage({
   searchParams: Promise<{ role?: string; q?: string; notice?: string; error?: string }>;
 }) {
   const sp = await searchParams;
-  const { supabase, userId } = await requireAdmin();
+  const { supabase, userId, isFull } = await requireAdmin();
   const role: RoleFilter = sp.role === "admin" || sp.role === "user" ? sp.role : "all";
   const q = (sp.q ?? "").trim().toLowerCase();
 
@@ -39,10 +39,10 @@ export default async function AdminUsersPage({
     .limit(LIMIT);
 
   const all = (data ?? []) as Profile[];
-  const counts = { all: all.length, user: all.filter((p) => p.role !== "admin").length, admin: all.filter((p) => p.role === "admin").length };
+  const counts = { all: all.length, user: all.filter((p) => !isAdminRole(p.role)).length, admin: all.filter((p) => isAdminRole(p.role)).length };
   const rows = all.filter((p) => {
-    if (role === "admin" && p.role !== "admin") return false;
-    if (role === "user" && p.role === "admin") return false;
+    if (role === "admin" && !isAdminRole(p.role)) return false;
+    if (role === "user" && isAdminRole(p.role)) return false;
     return !q || `${p.full_name ?? ""} ${p.email ?? ""} ${p.phone_number ?? ""}`.toLowerCase().includes(q);
   });
   const canCreate = hasServiceRole();
@@ -63,7 +63,8 @@ export default async function AdminUsersPage({
               <Field label="Role">
                 <select name="role" defaultValue="user" className={inputClass}>
                   <option value="user">Student / user</option>
-                  <option value="admin">Administrator</option>
+                  {isFull && <option value="sub_admin">Limited admin</option>}
+                  {isFull && <option value="admin">Full admin</option>}
                 </select>
               </Field>
               <div className="sm:col-span-2"><SubmitButton pendingLabel="Creating…">Create account</SubmitButton></div>
@@ -120,7 +121,7 @@ export default async function AdminUsersPage({
                     </td>
                     <td className="px-3 py-3 text-xs text-slate-600">{p.phone_number || "—"}</td>
                     <td className="px-3 py-3 text-xs text-slate-600">{p.education_level || "—"}</td>
-                    <td className="px-3 py-3"><Badge value={p.role} label={p.role === "admin" ? "Admin" : "Student"} /></td>
+                    <td className="px-3 py-3"><Badge value={p.role} label={p.role === "admin" ? "Full admin" : p.role === "sub_admin" ? "Limited admin" : "Student"} /></td>
                     <td className="px-3 py-3 text-xs text-slate-600">{p.onboarding_completed ? "Complete" : "Not finished"}</td>
                     <td className="px-3 py-3 text-xs text-slate-600">{formatDate(p.created_at)}</td>
                     <td className="px-5 py-3 text-right"><Link href={`/admin/users/${p.id}`} className="text-xs font-semibold text-blue-600">Manage →</Link></td>

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isAdminRole } from "@/lib/admin";
 import AdminShell from "./admin-shell";
 
 export default async function AdminLayout({
@@ -20,7 +21,7 @@ export default async function AdminLayout({
     .eq("id", data.claims.sub)
     .maybeSingle();
 
-  if (profile?.role !== "admin") {
+  if (!isAdminRole(profile?.role)) {
     redirect("/");
   }
 

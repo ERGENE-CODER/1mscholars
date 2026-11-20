@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { fetchActiveOpportunityCount } from "@/lib/opportunities";
+import { fetchSiteStats } from "@/lib/site-stats";
 import { useAsync } from "@/lib/useAsync";
-import { STATS } from "./content";
 
 /** Counts up from 0 to `value` the first time it scrolls into view (instant if the visitor prefers reduced motion). */
 function CountUp({ value, suffix = "" }: { value: number | undefined; suffix?: string }) {
@@ -59,14 +58,16 @@ function CountUp({ value, suffix = "" }: { value: number | undefined; suffix?: s
 }
 
 export default function StatsCounter() {
-  // Active Opportunities is live; if the count can't be loaded we show a dash rather than a wrong number.
-  const { data: active, error, loading } = useAsync(fetchActiveOpportunityCount);
+  // Every number is counted live from the database. If they can't be loaded we
+  // show a dash rather than a wrong number.
+  const { data, error, loading } = useAsync(fetchSiteStats);
+  const failed = !loading && Boolean(error);
 
-  const items: { label: string; value?: number; suffix?: string; dash?: boolean }[] = [
-    { label: "Active Opportunities", value: active, dash: !loading && Boolean(error) },
-    { label: "Youth Supported", ...STATS.youthSupported },
-    { label: "Colleges Covered", ...STATS.collegesCovered },
-    { label: "Training Programs", ...STATS.trainingPrograms },
+  const items: { label: string; value?: number }[] = [
+    { label: "Active Opportunities", value: data?.activeOpportunities },
+    { label: "Youth Supported", value: data?.youthSupported },
+    { label: "Colleges Covered", value: data?.collegesCovered },
+    { label: "Training Programs", value: data?.trainingPrograms },
   ];
 
   return (
@@ -75,7 +76,7 @@ export default function StatsCounter() {
         {items.map((item) => (
           <div key={item.label}>
             <div className="font-serif text-5xl font-bold leading-none text-[#F5B335] sm:text-6xl">
-              {item.dash ? "—" : <CountUp value={item.value} suffix={item.suffix} />}
+              {failed ? "—" : <CountUp value={item.value} />}
             </div>
             <p className="mt-3 text-sm text-slate-400">{item.label}</p>
           </div>

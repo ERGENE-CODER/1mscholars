@@ -1,13 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { backTo, friendlyError, requireAdmin } from "@/lib/admin";
+import { backTo, friendlyError, requireFullAdmin } from "@/lib/admin";
 import { validateEmail } from "@/lib/validation";
 
 const PAGE = "/admin/settings";
 
 export async function addAdminEmail(formData: FormData) {
-  const { supabase } = await requireAdmin();
+  const { supabase } = await requireFullAdmin(PAGE);
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const problem = validateEmail(email);
   if (problem) backTo(PAGE, "error", problem);
@@ -20,7 +20,7 @@ export async function addAdminEmail(formData: FormData) {
 }
 
 export async function removeAdminEmail(formData: FormData) {
-  const { supabase } = await requireAdmin();
+  const { supabase } = await requireFullAdmin(PAGE);
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   if (!email) backTo(PAGE, "error", "That request wasn't valid.");
 

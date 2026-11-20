@@ -2,13 +2,6 @@
  * Editable homepage content. Change the text here; no other file needs touching.
  */
 
-/** Numbers shown in the counter. "Active Opportunities" is NOT here: it is counted live from the database. */
-export const STATS = {
-  youthSupported: { value: 500, suffix: "+" },
-  collegesCovered: { value: 7, suffix: "" },
-  trainingPrograms: { value: 15, suffix: "+" },
-};
-
 /**
  * ⚠️ SAMPLE REVIEWS: REPLACE BEFORE LAUNCH ⚠️
  * These are placeholders so the section has something to show. Swap them for real,
