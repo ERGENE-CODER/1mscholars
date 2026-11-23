@@ -14,10 +14,10 @@ type PopupId = "whatsapp" | "youtube";
 const ORDER: PopupId[] = ["whatsapp", "youtube"];
 
 /** Seconds after the page opens before the FIRST pop-up. */
-const FIRST_DELAY_SECONDS = 2;
+const FIRST_DELAY_SECONDS = 1;
 
 /** Quiet time after one pop-up closes before the NEXT one may appear. */
-const GAP_SECONDS = 3;
+const GAP_SECONDS = 2;
 
 /** Days a pop-up stays hidden after the visitor closes it, or after they click its button. */
 const HIDE_DAYS: Record<PopupId, { closed: number; clicked: number }> = {
