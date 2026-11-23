@@ -37,6 +37,7 @@ export type OpportunityFormValues = {
   location: string;
   deadline: string; // YYYY-MM-DD or ""
   image_url: string;
+  video_url: string; // YouTube link or ""
   status: OpportunityStatusValue;
   featured: boolean;
   description: string;

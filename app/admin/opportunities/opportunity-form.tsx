@@ -23,6 +23,7 @@ export const EMPTY_OPPORTUNITY: OpportunityFormValues = {
   location: "",
   deadline: "",
   image_url: "",
+  video_url: "",
   status: "draft",
   featured: false,
   description: "",
@@ -98,6 +99,9 @@ export default function OpportunityForm({
           </Field>
           <Field label="Image link" hint="A full web address (https://…) of the picture shown on the card. Optional.">
             <input name="image_url" defaultValue={v.image_url} className={inputClass} placeholder="https://…" />
+          </Field>
+          <Field label="YouTube video link" hint="Optional. Adds a “Watch video” button on this opportunity's card. Paste a YouTube video link, e.g. https://youtu.be/…" className="sm:col-span-2">
+            <input name="video_url" defaultValue={v.video_url} className={inputClass} placeholder="https://www.youtube.com/watch?v=…" />
           </Field>
           <Field label="Description" className="sm:col-span-2">
             <textarea name="description" rows={6} defaultValue={v.description} className={inputClass} placeholder="What is this opportunity about?" />

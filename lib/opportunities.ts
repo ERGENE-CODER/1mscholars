@@ -1,4 +1,5 @@
 import { getSupabase } from "./supabase/client";
+import { parseYouTubeUrl } from "./youtube";
 
 /* ---------- Database row types (mirrors table_schema.sql) ---------- */
 
@@ -17,6 +18,7 @@ type OpportunityRow = {
   featured: boolean;
   category: string | null;
   study_level: string | null;
+  video_url: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -49,6 +51,8 @@ export type Opportunity = {
   featured: boolean;
   /** "undergraduate" | "graduate" | "both" | null (scholarships) */
   studyLevel: string | null;
+  /** Clean YouTube link entered by the admin (opportunities.video_url), or null. */
+  videoUrl: string | null;
   createdAt: string;
   /** The opportunity's category (scholarship, job, internship…) from opportunities.category. Used for filters and menus. */
   category: string | null;
@@ -124,6 +128,7 @@ function mapOpportunity(row: OpportunityQueryRow): Opportunity {
     status: row.status,
     featured: row.featured,
     studyLevel: row.study_level ?? null,
+    videoUrl: parseYouTubeUrl(row.video_url), // re-checked so only real YouTube links ever reach a button
     createdAt: row.created_at,
     category: row.category?.trim() || null,
     programs: (row.opportunity_programs ?? []).slice().sort(byPosition).map((p) => p.program_name),

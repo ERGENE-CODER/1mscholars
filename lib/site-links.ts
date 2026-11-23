@@ -19,3 +19,9 @@ export const SOCIAL_URLS = {
  * Until you paste it, the pop-up opens a chat with your main number instead.
  */
 export const WHATSAPP_GROUP_URL = "https://wa.me/250781841929";
+
+/**
+ * Subscribe link used by the YouTube pop-up. The "?sub_confirmation=1" part makes YouTube
+ * ask the visitor to confirm the subscription as soon as the channel page opens.
+ */
+export const YOUTUBE_SUBSCRIBE_URL = `${SOCIAL_URLS.youtube}?sub_confirmation=1`;

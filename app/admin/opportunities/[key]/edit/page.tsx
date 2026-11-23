@@ -13,7 +13,7 @@ export const metadata = { title: "Edit Opportunity | Admin" };
 
 type Row = {
   id: number; title: string; organization: string; category: string | null; country: string | null;
-  location: string | null; study_level: string | null; deadline: string | null; image_url: string | null; status: OpportunityStatusValue;
+  location: string | null; study_level: string | null; deadline: string | null; image_url: string | null; video_url: string | null; status: OpportunityStatusValue;
   featured: boolean; description: string | null; created_by: string | null;
   opportunity_programs: { program_name: string; position: number; id: number }[] | null;
   opportunity_requirements: { requirement: string; position: number; id: number }[] | null;
@@ -58,6 +58,7 @@ export default async function EditOpportunityPage({
     location: row.location ?? "",
     deadline: row.deadline ?? "",
     image_url: row.image_url ?? "",
+    video_url: row.video_url ?? "",
     status: row.status,
     featured: row.featured,
     description: row.description ?? "",

@@ -2,7 +2,7 @@
 
 import { useCallback, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, Play } from "lucide-react";
 import CardImage from "../component/CardImage";
 import OpportunityCard from "../component/OpportunityCard";
 import { EmptyState, ErrorState, PageSkeleton } from "../component/StateViews";
@@ -127,6 +127,17 @@ function GlanceBox({ o, closed, days, applyHref }: { o: Opportunity; closed: boo
               Our team guides you through the documents and submission. Final decisions rest with the institution.
             </p>
           </>
+        )}
+        {o.videoUrl && (
+          <a
+            href={o.videoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group/video mt-3 flex items-center justify-center gap-2 border border-slate-300 bg-white px-4 py-2.5 text-[14px] font-semibold text-[#102F59] transition-colors hover:border-[#CC0000] hover:text-[#CC0000]"
+          >
+            <Play size={15} fill="currentColor" className="text-[#FF0000] transition-transform group-hover/video:scale-125" aria-hidden="true" />
+            Watch the video on YouTube
+          </a>
         )}
       </div>
     </div>

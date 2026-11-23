@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { adminPath, backTo, friendlyError, requireAdmin, toId, type Db } from "@/lib/admin";
+import { parseYouTubeUrl } from "@/lib/youtube";
 
 const NOT_OWNER = "You can only delete opportunities and forms you published yourself. Ask a full administrator.";
 
@@ -49,6 +50,7 @@ function readValues(fd: FormData): OpportunityFormValues {
     location: text(fd, "location"),
     deadline: text(fd, "deadline"),
     image_url: text(fd, "image_url"),
+    video_url: text(fd, "video_url"),
     status: OPPORTUNITY_STATUSES.includes(status) ? status : "draft",
     featured: fd.get("featured") === "on",
     description: String(fd.get("description") ?? "").trim(),
@@ -66,7 +68,18 @@ function validate(v: OpportunityFormValues): string | null {
   if (v.image_url && !/^https?:\/\/\S+$/i.test(v.image_url) && !v.image_url.startsWith("/")) {
     return "The image link must start with https:// (or be a path like /hero.png).";
   }
+  if (v.video_url && !parseYouTubeUrl(v.video_url)) {
+    return "The video link must be a YouTube video link, for example https://www.youtube.com/watch?v=… or https://youtu.be/…";
+  }
   return null;
+}
+
+/** Same as friendlyError, plus a hint when the video_url column hasn't been added to the database yet. */
+function saveError(error: Parameters<typeof friendlyError>[0], fallback?: string) {
+  if (error?.message && /video_url/.test(error.message)) {
+    return "The database doesn't have the video link column yet. Run supabase/video-url.sql once in the Supabase SQL editor, then save again.";
+  }
+  return friendlyError(error, fallback);
 }
 
 const CHILD_TABLES = [
@@ -115,6 +128,7 @@ export async function saveOpportunity(_prev: SaveState, formData: FormData): Pro
     location: values.location || null,
     deadline: values.deadline || null,
     image_url: values.image_url || null,
+    video_url: parseYouTubeUrl(values.video_url), // saved as a clean https://www.youtube.com/… link
     status: values.status,
     featured: values.featured,
     updated_at: new Date().toISOString(),
@@ -126,7 +140,7 @@ export async function saveOpportunity(_prev: SaveState, formData: FormData): Pro
   if (values.id) {
     const { data, error } = await supabase.from("opportunities").update(row).eq("id", values.id).select("id");
     if (error || !data || data.length === 0) {
-      return { error: friendlyError(error, "Nothing was updated. Check that this opportunity still exists and that you're an admin."), values };
+      return { error: saveError(error, "Nothing was updated. Check that this opportunity still exists and that you're an admin."), values };
     }
     opportunityId = values.id;
   } else {
@@ -135,7 +149,7 @@ export async function saveOpportunity(_prev: SaveState, formData: FormData): Pro
       .insert({ ...row, created_by: userId })
       .select("id")
       .single();
-    if (error || !data) return { error: friendlyError(error), values };
+    if (error || !data) return { error: saveError(error), values };
     opportunityId = data.id as number;
   }
 

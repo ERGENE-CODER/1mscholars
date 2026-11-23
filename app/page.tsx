@@ -5,7 +5,7 @@ import Testimonials from "./component/home/Testimonials";
 import Faq from "./component/home/Faq";
 import HeroCarousel from "./component/home/HeroCarousel";
 import RecommendedScholarships from "./component/home/RecommendedScholarships";
-import WhatsAppPopup from "./component/home/WhatsAppPopup";
+import HomePopups from "./component/home/HomePopups";
 
 export default function Home() {
   return (
@@ -59,8 +59,8 @@ export default function Home() {
       {/* FAQ */}
       <Faq />
 
-      {/* WhatsApp group invitation (appears a few seconds after the page opens) */}
-      <WhatsAppPopup />
+      {/* Pop-ups (WhatsApp group, then YouTube), shown one at a time with pauses between */}
+      <HomePopups />
     </main>
   );
 }
